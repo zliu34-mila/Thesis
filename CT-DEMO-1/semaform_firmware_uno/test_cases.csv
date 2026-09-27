@@ -1,0 +1,30 @@
+﻿category,sentence,expected
+command,Move them one after another,scan
+command,All of you rise and fall slowly together,breathe
+command,Spread out from the middle,ripple
+command,Give a little shake,shiver
+command,Everyone lean to the right,reach
+command,Beat twice like a heart,heartbeat
+command,Start a wave from the left,wave
+emotion,I'm so nervous about my presentation tomorrow,shiver|heartbeat
+emotion,"Finally on vacation, I'm so happy!",wave|ripple|shiver
+emotion,I'm getting sleepy,breathe
+emotion,It's freezing in here,shiver
+emotion,I love you,heartbeat
+emotion,I feel really calm right now,breathe
+emotion,You scared me!,shiver|ripple
+emotion,I'm stuck on a problem and can't figure it out,scan
+nature,A breeze passes over the grass,wave
+nature,A pebble drops into the lake,ripple
+nature,Waves keep rolling onto the shore,wave
+nature,The leaves are trembling,shiver
+nature,The sunflowers all turn toward the sun,reach
+nature,It's late at night and everyone is asleep,breathe|still
+conversation,Hello there,wave
+conversation,What are you looking at?,scan
+conversation,Are you alive?,heartbeat|breathe
+conversation,Look over there!,reach
+conversation,What are you counting?,scan
+stop,Don't move,still
+stop,Be quiet for a moment,still|breathe
+stop,"That's enough, stop now",still
