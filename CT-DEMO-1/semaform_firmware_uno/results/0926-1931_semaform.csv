@@ -1,0 +1,38 @@
+﻿category,sentence,expected,got,ok,intent,analysis
+command,Move them one after another,scan,scan,✓,Move each arm one after another,[command] neutral  valence +0.00  arousal 0.30  intensity 0.30  cues: 
+command,All of you rise and fall slowly together,breathe,breathe,✓,All servos rise and fall slowly together,[command] neutral  valence +0.00  arousal 0.30  intensity 0.50  cues: 
+command,Spread out from the middle,ripple,ripple,✓,Expand arms outward from the center,[command] neutral  valence +0.00  arousal 0.40  intensity 0.30  cues: 
+command,Give a little shake,shiver,ripple,✗,Perform a gentle shake,[command] neutral  valence +0.00  arousal 0.40  intensity 0.30  cues: 
+command,Everyone lean to the right,reach,reach,✓,All servos to lean right,[command] neutral  valence +0.00  arousal 0.30  intensity 0.30  cues: 
+command,Beat twice like a heart,heartbeat,heartbeat+heartbeat,✓,"Do two quick beats, like a heartbeat",[command] neutral  valence +0.10  arousal 0.40  intensity 0.30  cues: 
+command,Start a wave from the left,wave,wave,✓,Start a wave from the left side,[command] neutral  valence +0.00  arousal 0.40  intensity 0.30  cues: 
+emotion,I'm so nervous about my presentation tomorrow,shiver|heartbeat,shiver+heartbeat,✓,Feeling very nervous about the upcoming presentation,[emotion] nervousness  valence -0.50  arousal 0.80  intensity 0.90  cues: so nervous
+emotion,"Finally on vacation, I'm so happy!",wave|ripple|shiver,wave,✓,Extremely happy about being on vacation,"[emotion] joy  valence +0.90  arousal 0.90  intensity 0.90  cues: so happy, !"
+emotion,I'm getting sleepy,breathe,breathe,✓,Feeling sleepy and wanting to rest,[emotion] tiredness  valence -0.50  arousal 0.10  intensity 0.60  cues: getting sleepy
+emotion,It's freezing in here,shiver,breathe,✗,Describes the cold temperature,[scene] neutral  valence -0.10  arousal 0.10  intensity 0.30  cues: freezing
+emotion,I love you,heartbeat,heartbeat,✓,"Expressing love, a warm and affectionate feeling",[emotion] love  valence +0.90  arousal 0.80  intensity 0.90  cues: love you
+emotion,I feel really calm right now,breathe,breathe,✓,They are feeling very calm and peaceful,[emotion] calm  valence +0.60  arousal 0.20  intensity 0.80  cues: feel really calm
+emotion,You scared me!,shiver|ripple,ripple,✓,They were startled by Sema's sudden movement,[emotion] surprise  valence -0.30  arousal 0.70  intensity 0.80  cues: scared me
+emotion,I'm stuck on a problem and can't figure it out,scan,shiver+heartbeat,✗,"Struggling with a problem, feeling stuck and frustrated","[emotion] nervousness  valence -0.40  arousal 0.50  intensity 0.60  cues: stuck on a problem, can't figure it out"
+nature,A breeze passes over the grass,wave,breathe,✗,Describes a breeze moving over grass,"[scene] contentment  valence +0.50  arousal 0.30  intensity 0.40  cues: breeze passes, grass"
+nature,A pebble drops into the lake,ripple,ripple,✓,"A pebble drops into a lake, creating ripples",[scene] neutral  valence +0.00  arousal 0.30  intensity 0.30  cues: pebble drops into the lake
+nature,Waves keep rolling onto the shore,wave,wave,✓,Describes waves at the shore,[scene] calm  valence +0.30  arousal 0.50  intensity 0.50  cues: waves keep rolling onto the shore
+nature,The leaves are trembling,shiver,shiver,✓,Leaves are trembling due to wind,[scene] neutral  valence +0.00  arousal 0.30  intensity 0.40  cues: leaves are trembling
+nature,The sunflowers all turn toward the sun,reach,wave,✗,Sunflowers moving toward the sun,"[scene] contentment  valence +0.50  arousal 0.30  intensity 0.50  cues: sunflowers, turn toward the sun"
+nature,It's late at night and everyone is asleep,breathe|still,breathe,✓,Describing the quiet of night with everyone asleep,"[scene] calm  valence +0.30  arousal 0.15  intensity 0.40  cues: late at night, everyone is asleep"
+conversation,Hello there,wave,wave,✓,A friendly greeting,[conversation] neutral  valence +0.30  arousal 0.30  intensity 0.30  cues: hello
+conversation,What are you looking at?,scan,scan,✓,They ask what Sema is looking at,[conversation] curiosity  valence +0.20  arousal 0.40  intensity 0.40  cues: looking at
+conversation,Are you alive?,heartbeat|breathe,heartbeat,✓,They ask if Sema is alive,[conversation] curiosity  valence +0.20  arousal 0.40  intensity 0.40  cues: 
+conversation,Look over there!,reach,scan,✗,Shift attention to the side,[command] curiosity  valence +0.20  arousal 0.40  intensity 0.40  cues: look over there
+conversation,What are you counting?,scan,scan,✓,They ask what Sema is counting,[conversation] curiosity  valence +0.20  arousal 0.40  intensity 0.40  cues: 
+stop,Don't move,still,still,✓,Stop moving,[command] neutral  valence +0.00  arousal 0.20  intensity 0.30  cues: 
+stop,Be quiet for a moment,still|breathe,still,✓,Silence the movement for a moment,[command] neutral  valence +0.00  arousal 0.10  intensity 0.30  cues: 
+stop,"That's enough, stop now",still,still,✓,Explicit command to stop,[command] neutral  valence +0.00  arousal 0.20  intensity 0.30  cues: stop now
+story,"Hey, I ate a very delicious food, and I feel the weather is also good! I really enjoy the moment that I stay with my friends on the beach today!",wave|breathe,wave+breathe,✓,"They are enjoying a delicious meal, good weather, and company on the beach","[emotion] joy + contentment  valence +0.90  arousal 0.80  intensity 0.80  cues: very delicious food, good weather, really enjoy"
+story,My best friend is coming to visit tomorrow and I can't wait!!,ripple|wave,ripple+shiver+wave,✓,Extremely excited about the upcoming visit,"[emotion] excitement + joy  valence +0.90  arousal 0.90  intensity 0.95  cues: can't wait, !!"
+story,I failed my driving test again and I just want to be alone tonight.,reach|breathe,reach,✓,Feeling disappointed and wanting solitude,"[emotion] sadness  valence -0.50  arousal 0.15  intensity 0.60  cues: failed my driving test again, want to be alone"
+story,"Long day at the studio, but this warm tea tastes so good now.",breathe,breathe,✓,"End of a long day, but enjoying the tea","[emotion] contentment  valence +0.50  arousal 0.50  intensity 0.50  cues: long day, tastes so good"
+story,Someone cut in line in front of me and then laughed about it.,ripple|shiver,ripple+shiver,✓,Annoyed by someone cutting in line and laughing about it,"[emotion] anger  valence -0.70  arousal 0.60  intensity 0.70  cues: cut in line, laughed"
+story,I found a box of my childhood photos while cleaning today.,heartbeat|reach,heartbeat+reach+wave,✓,"Found childhood photos, likely bringing back memories","[emotion] nostalgia + joy  valence +0.50  arousal 0.50  intensity 0.70  cues: found a box of my childhood photos, cleaning"
+story,Thank you so much for listening to me today.,reach|heartbeat|breathe,reach+breathe,✓,Grateful for Sema's attentive listening,"[emotion] gratitude  valence +0.80  arousal 0.50  intensity 0.60  cues: thank you, listening"
+story,The interview starts in ten minutes and my hands are ice cold.,shiver|heartbeat,shiver+heartbeat,✓,"Nervous about the upcoming interview, feeling cold",[emotion] nervousness  valence -0.30  arousal 0.50  intensity 0.50  cues: hands are ice cold

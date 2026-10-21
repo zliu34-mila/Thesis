@@ -28,3 +28,11 @@ conversation,What are you counting?,scan
 stop,Don't move,still
 stop,Be quiet for a moment,still|breathe
 stop,"That's enough, stop now",still
+story,"Hey, I ate a very delicious food, and I feel the weather is also good! I really enjoy the moment that I stay with my friends on the beach today!",wave|breathe
+story,My best friend is coming to visit tomorrow and I can't wait!!,ripple|wave
+story,I failed my driving test again and I just want to be alone tonight.,reach|breathe
+story,"Long day at the studio, but this warm tea tastes so good now.",breathe
+story,Someone cut in line in front of me and then laughed about it.,ripple|shiver
+story,I found a box of my childhood photos while cleaning today.,heartbeat|reach
+story,Thank you so much for listening to me today.,reach|heartbeat|breathe
+story,The interview starts in ten minutes and my hands are ice cold.,shiver|heartbeat

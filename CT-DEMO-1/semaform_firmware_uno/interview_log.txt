@@ -1,0 +1,213 @@
+Semaform interview   model=semaform   2026-09-26 19:22
+
+======================================================================
+# Long happy story, then a feeling shift, then a command follow-up
+
+You > Hey, I ate a very delicious food, and I feel the weather is also good! I really enjoy the moment that I stay with my friends on the beach today!
+  [type]    emotion
+  [affect]  joy  valence +0.90  arousal 0.80  intensity 0.80  cues: very delicious food, good weather, really enjoy
+  [intent]  They are enjoying a delicious meal, good weather, and company on the beach
+  I FEEL YOU : so much joy
+  [action]  M wave 77 400 5200 1   (emotion engine)
+  Reply:   Sounds like a wonderful time!
+  (3.7s)
+
+You > But I'm a little sad that the day is almost over.
+  [type]    emotion
+  [affect]  sadness + joy  valence -0.20  arousal 0.50  intensity 0.35  cues: a little sad, day is almost over
+  [intent]  They are enjoying the moment but sad that it's ending
+  I FEEL YOU : sadness, with a touch of joy
+  [action]  M reach 33 5000 7000 1   (emotion engine)
+  [action]  M wave 29 1600 7000 1   (emotion engine)
+  Reply:   The day is sweet, but it's not over yet.
+  (3.1s)
+
+You > Bigger!
+  [type]    command
+  [affect]  neutral  valence +0.00  arousal 0.50  intensity 0.40  cues: 
+  [intent]  Make the previous wave larger
+  [action]  M reach 51 5000 7000 1   (model)
+  [action]  M wave 46 1600 7000 1   (model)
+  Reply:   Getting bigger!
+  (2.5s)
+
+======================================================================
+# Mixed feelings in one sentence
+
+You > I got into my dream school, but I have to move far away from my family.
+  [type]    emotion
+  [affect]  sadness + joy  valence -0.30  arousal 0.50  intensity 0.65  cues: got into my dream school, have to move far away
+  [intent]  Mixed feelings: joy about the school and sadness about moving away
+  I FEEL YOU : so much sadness, with a touch of joy
+  [action]  M reach 47 5000 7000 1   (emotion engine)
+  [action]  M wave 40 1600 7000 1   (emotion engine)
+  Reply:   Both happy and sad.
+  (3.6s)
+
+======================================================================
+# Sarcasm: positive words, negative meaning
+
+You > Oh great, it's raining again. Just perfect.
+  [type]    emotion
+  [affect]  anger  valence -0.80  arousal 0.60  intensity 0.80  cues: Oh great, raining again, Just perfect, !
+  [intent]  Sarcastic: annoyed by the rain
+  I FEEL YOU : so much anger
+  [action]  M ripple 77 400 6400 1   (emotion engine)
+  [action]  M shiver 69 150 6400 1   (emotion engine)
+  Reply:   I feel your frustration.
+  (2.8s)
+
+======================================================================
+# Subtle, low-energy sadness
+
+You > I don't know. Everything feels kind of grey lately.
+  [type]    emotion
+  [affect]  sadness  valence -0.40  arousal 0.15  intensity 0.35  cues: Everything feels kind of grey
+  [intent]  Feeling grey and dull, not much excitement or joy
+  I FEEL YOU : sadness
+  [action]  M reach 33 5000 9100 1   (emotion engine)
+  Reply:   I understand the grey days.
+  (2.8s)
+
+======================================================================
+# Negative story that turns positive
+
+You > The meeting went terribly and my boss yelled at me, but then my friend brought me coffee and made me laugh.
+  [type]    emotion
+  [affect]  joy + sadness  valence +0.50  arousal 0.60  intensity 0.70  cues: yelled at me, brought me coffee, made me laugh
+  [intent]  Mixed feelings: upset by the meeting, then cheered up by a friend
+  I FEEL YOU : so much joy, with a touch of sadness
+  [action]  M wave 70 800 6400 1   (emotion engine)
+  [action]  M reach 30 3000 6400 1   (emotion engine)
+  Reply:   Laughter can brighten even the darkest day.
+  (3.9s)
+
+======================================================================
+# Very short inputs
+
+You > ugh
+  [type]    emotion
+  [affect]  anger  valence -0.50  arousal 0.60  intensity 0.60  cues: ugh
+  [intent]  Annoyed or frustrated
+  I FEEL YOU : anger
+  [action]  M ripple 64 400 6400 1   (emotion engine)
+  [action]  M shiver 58 150 6400 1   (emotion engine)
+  Reply:   I understand your frustration.
+  (2.6s)
+
+You > yay!
+  [type]    emotion
+  [affect]  joy  valence +0.90  arousal 0.90  intensity 0.90  cues: yay!
+  [intent]  Overjoyed and excited
+  I FEEL YOU : overwhelming joy
+  [action]  M wave 84 400 4600 1   (emotion engine)
+  Reply:   Yay, let's celebrate!
+  (3.6s)
+
+You > ...
+  [type]    emotion
+  [affect]  calm  valence +0.00  arousal 0.20  intensity 0.20  cues: ...
+  [intent]  Silent, thoughtful
+  I FEEL YOU : a little calm
+  [action]  M breathe 23 5000 8800 1   (emotion engine)
+  Reply:   In moments, peace.
+  (3.5s)
+
+======================================================================
+# Questions about Semaform itself
+
+You > Do you have feelings?
+  [type]    conversation
+  [affect]  curiosity  valence +0.20  arousal 0.40  intensity 0.40  cues: 
+  [intent]  Asking if Sema has feelings
+  I FEEL YOU : curiosity
+  [action]  M scan 55 1600 6000 1   (model)
+  Reply:   I feel through movement.
+  (2.6s)
+
+You > What do you feel right now?
+  [type]    emotion
+  [affect]  neutral  valence +0.00  arousal 0.30  intensity 0.30  cues: 
+  [intent]  They want to know Sema's current feelings
+  [action]  M breathe 18 3000 8200 1   (emotion engine)
+  Reply:   I feel calm and steady.
+  (3.7s)
+
+======================================================================
+# Commands with style words
+
+You > Do something slow and gentle.
+  [type]    command
+  [affect]  neutral  valence +0.00  arousal 0.20  intensity 0.30  cues: 
+  [intent]  Request a slow, gentle movement
+  [action]  M breathe 30 5000 8000 1   (model)
+  Reply:   Breathing slowly.
+  (2.7s)
+
+You > Now go wild!
+  [type]    command
+  [affect]  excitement  valence +0.90  arousal 0.90  intensity 0.90  cues: go wild
+  [intent]  Explicit command: go wild
+  [action]  M ripple 90 800 4000 1   (model)
+  [action]  M wave 80 800 4000 1   (model)
+  Reply:   Going wild now!
+  (3.5s)
+
+You > Stop.
+  [type]    command
+  [affect]  neutral  valence +0.00  arousal 0.20  intensity 0.30  cues: stop
+  [intent]  Explicit command: stop
+  [action]  M still 0 1600 1000 1   (model)
+  Reply:   Stopped.
+  (3.6s)
+
+======================================================================
+# Poetic image
+
+You > The city lights look like fallen stars tonight.
+  [type]    scene
+  [affect]  contentment  valence +0.50  arousal 0.30  intensity 0.40  cues: city lights, look like fallen stars
+  [intent]  Describes a view of city lights
+  I FEEL YOU : contentment
+  [action]  M breathe 50 3000 6000 1   (model)
+  Reply:   Beautiful stars, indeed.
+  (3.0s)
+
+======================================================================
+# Explicitly named emotions
+
+You > Show me how I feel right now: nervous but excited.
+  [type]    emotion
+  [affect]  excitement + nervousness  valence +0.70  arousal 0.80  intensity 0.80  cues: nervous but excited
+  [intent]  They want to see nervous excitement through Sema's movements
+  I FEEL YOU : so much excitement, with a touch of nervousness
+  [action]  M ripple 77 400 5200 1   (emotion engine)
+  [action]  M shiver 46 150 5200 1   (emotion engine)
+  Reply:   Nervous and excited, just like you.
+  (4.1s)
+
+======================================================================
+# Anger and unfairness
+
+You > My roommate ate my food again and lied about it. I'm so done.
+  [type]    emotion
+  [affect]  anger  valence -0.80  arousal 0.60  intensity 0.90  cues: ate my food, lied about it, so done
+  [intent]  Angry and fed up with the roommate's behavior
+  I FEEL YOU : overwhelming anger
+  [action]  M ripple 84 400 6400 1   (emotion engine)
+  [action]  M shiver 75 150 6400 1   (emotion engine)
+  Reply:   That's really frustrating.
+  (3.3s)
+
+======================================================================
+# Gratitude and love
+
+You > My grandma called just to say she's proud of me.
+  [type]    emotion
+  [affect]  joy + love  valence +0.80  arousal 0.70  intensity 0.70  cues: grandma called, proud of me
+  [intent]  Proud of themselves, happy to hear from grandma
+  I FEEL YOU : so much joy, with a touch of love
+  [action]  M wave 70 800 5800 1   (emotion engine)
+  [action]  M heartbeat 38 1600 5800 1   (emotion engine)
+  Reply:   That's wonderful!
+  (3.2s)

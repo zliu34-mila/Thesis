@@ -1,0 +1,853 @@
+[
+  {
+    "topic": "Long happy story, then a feeling shift, then a command follow-up",
+    "input": "Hey, I ate a very delicious food, and I feel the weather is also good! I really enjoy the moment that I stay with my friends on the beach today!",
+    "plan": {
+      "type": "emotion",
+      "intent": "They are enjoying a delicious meal, good weather, and company on the beach",
+      "affect": {
+        "cues": [
+          "very delicious food",
+          "good weather",
+          "really enjoy"
+        ],
+        "emotion": "joy",
+        "secondary": "none",
+        "valence": 0.9,
+        "arousal": 0.8,
+        "intensity": 0.8
+      },
+      "gestures": [
+        {
+          "mode": "wave",
+          "amplitude": 80,
+          "speed": "medium",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "Sounds like a wonderful time!"
+    },
+    "final_gestures": [
+      {
+        "mode": "wave",
+        "amplitude": 77,
+        "speed": "very_fast",
+        "duration_s": 5.2,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.7
+  },
+  {
+    "topic": "Long happy story, then a feeling shift, then a command follow-up",
+    "input": "But I'm a little sad that the day is almost over.",
+    "plan": {
+      "type": "emotion",
+      "intent": "They are enjoying the moment but sad that it's ending",
+      "affect": {
+        "cues": [
+          "a little sad",
+          "day is almost over"
+        ],
+        "emotion": "sadness",
+        "secondary": "joy",
+        "valence": -0.2,
+        "arousal": 0.5,
+        "intensity": 0.35
+      },
+      "gestures": [
+        {
+          "mode": "reach",
+          "amplitude": 50,
+          "speed": "slow",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "The day is sweet, but it's not over yet."
+    },
+    "final_gestures": [
+      {
+        "mode": "reach",
+        "amplitude": 33,
+        "speed": "very_slow",
+        "duration_s": 7.0,
+        "direction": "right"
+      },
+      {
+        "mode": "wave",
+        "amplitude": 29,
+        "speed": "medium",
+        "duration_s": 7.0,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.1
+  },
+  {
+    "topic": "Long happy story, then a feeling shift, then a command follow-up",
+    "input": "Bigger!",
+    "plan": {
+      "type": "command",
+      "intent": "Make the previous wave larger",
+      "affect": {
+        "cues": [],
+        "emotion": "neutral",
+        "secondary": "none",
+        "valence": 0.0,
+        "arousal": 0.5,
+        "intensity": 0.4
+      },
+      "gestures": [
+        {
+          "mode": "reach",
+          "amplitude": 51,
+          "speed": "very_slow",
+          "duration_s": 7.0,
+          "direction": "right"
+        },
+        {
+          "mode": "wave",
+          "amplitude": 46,
+          "speed": "medium",
+          "duration_s": 7.0,
+          "direction": "right"
+        }
+      ],
+      "reply": "Getting bigger!"
+    },
+    "final_gestures": [
+      {
+        "mode": "reach",
+        "amplitude": 51,
+        "speed": "very_slow",
+        "duration_s": 7.0,
+        "direction": "right"
+      },
+      {
+        "mode": "wave",
+        "amplitude": 46,
+        "speed": "medium",
+        "duration_s": 7.0,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 2.5
+  },
+  {
+    "topic": "Mixed feelings in one sentence",
+    "input": "I got into my dream school, but I have to move far away from my family.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Mixed feelings: joy about the school and sadness about moving away",
+      "affect": {
+        "cues": [
+          "got into my dream school",
+          "have to move far away"
+        ],
+        "emotion": "sadness",
+        "secondary": "joy",
+        "valence": -0.3,
+        "arousal": 0.5,
+        "intensity": 0.65
+      },
+      "gestures": [
+        {
+          "mode": "wave",
+          "amplitude": 50,
+          "speed": "medium",
+          "duration_s": 4,
+          "direction": "right"
+        },
+        {
+          "mode": "reach",
+          "amplitude": 35,
+          "speed": "slow",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "Both happy and sad."
+    },
+    "final_gestures": [
+      {
+        "mode": "reach",
+        "amplitude": 47,
+        "speed": "very_slow",
+        "duration_s": 7.0,
+        "direction": "right"
+      },
+      {
+        "mode": "wave",
+        "amplitude": 40,
+        "speed": "medium",
+        "duration_s": 7.0,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.6
+  },
+  {
+    "topic": "Sarcasm: positive words, negative meaning",
+    "input": "Oh great, it's raining again. Just perfect.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Sarcastic: annoyed by the rain",
+      "affect": {
+        "cues": [
+          "Oh great",
+          "raining again",
+          "Just perfect",
+          "!"
+        ],
+        "emotion": "anger",
+        "secondary": "none",
+        "valence": -0.8,
+        "arousal": 0.6,
+        "intensity": 0.8
+      },
+      "gestures": [
+        {
+          "mode": "ripple",
+          "amplitude": 70,
+          "speed": "fast",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "I feel your frustration."
+    },
+    "final_gestures": [
+      {
+        "mode": "ripple",
+        "amplitude": 77,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      },
+      {
+        "mode": "shiver",
+        "amplitude": 69,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 2.8
+  },
+  {
+    "topic": "Subtle, low-energy sadness",
+    "input": "I don't know. Everything feels kind of grey lately.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Feeling grey and dull, not much excitement or joy",
+      "affect": {
+        "cues": [
+          "Everything feels kind of grey"
+        ],
+        "emotion": "sadness",
+        "secondary": "none",
+        "valence": -0.4,
+        "arousal": 0.15,
+        "intensity": 0.35
+      },
+      "gestures": [
+        {
+          "mode": "reach",
+          "amplitude": 35,
+          "speed": "very_slow",
+          "duration_s": 8,
+          "direction": "right"
+        }
+      ],
+      "reply": "I understand the grey days."
+    },
+    "final_gestures": [
+      {
+        "mode": "reach",
+        "amplitude": 33,
+        "speed": "very_slow",
+        "duration_s": 9.1,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 2.8
+  },
+  {
+    "topic": "Negative story that turns positive",
+    "input": "The meeting went terribly and my boss yelled at me, but then my friend brought me coffee and made me laugh.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Mixed feelings: upset by the meeting, then cheered up by a friend",
+      "affect": {
+        "cues": [
+          "yelled at me",
+          "brought me coffee",
+          "made me laugh"
+        ],
+        "emotion": "joy",
+        "secondary": "sadness",
+        "valence": 0.5,
+        "arousal": 0.6,
+        "intensity": 0.7
+      },
+      "gestures": [
+        {
+          "mode": "ripple",
+          "amplitude": 80,
+          "speed": "fast",
+          "duration_s": 4,
+          "direction": "right"
+        },
+        {
+          "mode": "wave",
+          "amplitude": 50,
+          "speed": "medium",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "Laughter can brighten even the darkest day."
+    },
+    "final_gestures": [
+      {
+        "mode": "wave",
+        "amplitude": 70,
+        "speed": "fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      },
+      {
+        "mode": "reach",
+        "amplitude": 30,
+        "speed": "slow",
+        "duration_s": 6.4,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.9
+  },
+  {
+    "topic": "Very short inputs",
+    "input": "ugh",
+    "plan": {
+      "type": "emotion",
+      "intent": "Annoyed or frustrated",
+      "affect": {
+        "cues": [
+          "ugh"
+        ],
+        "emotion": "anger",
+        "secondary": "none",
+        "valence": -0.5,
+        "arousal": 0.6,
+        "intensity": 0.6
+      },
+      "gestures": [
+        {
+          "mode": "shiver",
+          "amplitude": 50,
+          "speed": "medium",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "I understand your frustration."
+    },
+    "final_gestures": [
+      {
+        "mode": "ripple",
+        "amplitude": 64,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      },
+      {
+        "mode": "shiver",
+        "amplitude": 58,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 2.6
+  },
+  {
+    "topic": "Very short inputs",
+    "input": "yay!",
+    "plan": {
+      "type": "emotion",
+      "intent": "Overjoyed and excited",
+      "affect": {
+        "cues": [
+          "yay!"
+        ],
+        "emotion": "joy",
+        "secondary": "none",
+        "valence": 0.9,
+        "arousal": 0.9,
+        "intensity": 0.9
+      },
+      "gestures": [
+        {
+          "mode": "wave",
+          "amplitude": 80,
+          "speed": "fast",
+          "duration_s": 8,
+          "direction": "right"
+        }
+      ],
+      "reply": "Yay, let's celebrate!"
+    },
+    "final_gestures": [
+      {
+        "mode": "wave",
+        "amplitude": 84,
+        "speed": "very_fast",
+        "duration_s": 4.6,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.6
+  },
+  {
+    "topic": "Very short inputs",
+    "input": "...",
+    "plan": {
+      "type": "emotion",
+      "intent": "Silent, thoughtful",
+      "affect": {
+        "cues": [
+          "..."
+        ],
+        "emotion": "calm",
+        "secondary": "none",
+        "valence": 0.0,
+        "arousal": 0.2,
+        "intensity": 0.2
+      },
+      "gestures": [
+        {
+          "mode": "breathe",
+          "amplitude": 35,
+          "speed": "very_slow",
+          "duration_s": 8,
+          "direction": "right"
+        }
+      ],
+      "reply": "In moments, peace."
+    },
+    "final_gestures": [
+      {
+        "mode": "breathe",
+        "amplitude": 23,
+        "speed": "very_slow",
+        "duration_s": 8.8,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.5
+  },
+  {
+    "topic": "Questions about Semaform itself",
+    "input": "Do you have feelings?",
+    "plan": {
+      "type": "conversation",
+      "intent": "Asking if Sema has feelings",
+      "affect": {
+        "cues": [],
+        "emotion": "curiosity",
+        "secondary": "none",
+        "valence": 0.2,
+        "arousal": 0.4,
+        "intensity": 0.4
+      },
+      "gestures": [
+        {
+          "mode": "scan",
+          "amplitude": 55,
+          "speed": "medium",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "I feel through movement."
+    },
+    "final_gestures": [
+      {
+        "mode": "scan",
+        "amplitude": 55,
+        "speed": "medium",
+        "duration_s": 6,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 2.6
+  },
+  {
+    "topic": "Questions about Semaform itself",
+    "input": "What do you feel right now?",
+    "plan": {
+      "type": "emotion",
+      "intent": "They want to know Sema's current feelings",
+      "affect": {
+        "cues": [],
+        "emotion": "neutral",
+        "secondary": "none",
+        "valence": 0.0,
+        "arousal": 0.3,
+        "intensity": 0.3
+      },
+      "gestures": [
+        {
+          "mode": "heartbeat",
+          "amplitude": 40,
+          "speed": "slow",
+          "duration_s": 5,
+          "direction": "right"
+        }
+      ],
+      "reply": "I feel calm and steady."
+    },
+    "final_gestures": [
+      {
+        "mode": "breathe",
+        "amplitude": 18,
+        "speed": "slow",
+        "duration_s": 8.2,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.7
+  },
+  {
+    "topic": "Commands with style words",
+    "input": "Do something slow and gentle.",
+    "plan": {
+      "type": "command",
+      "intent": "Request a slow, gentle movement",
+      "affect": {
+        "cues": [],
+        "emotion": "neutral",
+        "secondary": "none",
+        "valence": 0.0,
+        "arousal": 0.2,
+        "intensity": 0.3
+      },
+      "gestures": [
+        {
+          "mode": "breathe",
+          "amplitude": 30,
+          "speed": "very_slow",
+          "duration_s": 8,
+          "direction": "right"
+        }
+      ],
+      "reply": "Breathing slowly."
+    },
+    "final_gestures": [
+      {
+        "mode": "breathe",
+        "amplitude": 30,
+        "speed": "very_slow",
+        "duration_s": 8,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 2.7
+  },
+  {
+    "topic": "Commands with style words",
+    "input": "Now go wild!",
+    "plan": {
+      "type": "command",
+      "intent": "Explicit command: go wild",
+      "affect": {
+        "cues": [
+          "go wild"
+        ],
+        "emotion": "excitement",
+        "secondary": "none",
+        "valence": 0.9,
+        "arousal": 0.9,
+        "intensity": 0.9
+      },
+      "gestures": [
+        {
+          "mode": "ripple",
+          "amplitude": 90,
+          "speed": "fast",
+          "duration_s": 4,
+          "direction": "right"
+        },
+        {
+          "mode": "wave",
+          "amplitude": 80,
+          "speed": "fast",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "Going wild now!"
+    },
+    "final_gestures": [
+      {
+        "mode": "ripple",
+        "amplitude": 90,
+        "speed": "fast",
+        "duration_s": 4,
+        "direction": "right"
+      },
+      {
+        "mode": "wave",
+        "amplitude": 80,
+        "speed": "fast",
+        "duration_s": 4,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 3.5
+  },
+  {
+    "topic": "Commands with style words",
+    "input": "Stop.",
+    "plan": {
+      "type": "command",
+      "intent": "Explicit command: stop",
+      "affect": {
+        "cues": [
+          "stop"
+        ],
+        "emotion": "neutral",
+        "secondary": "none",
+        "valence": 0.0,
+        "arousal": 0.2,
+        "intensity": 0.3
+      },
+      "gestures": [
+        {
+          "mode": "still",
+          "amplitude": 0,
+          "speed": "medium",
+          "duration_s": 1,
+          "direction": "right"
+        }
+      ],
+      "reply": "Stopped."
+    },
+    "final_gestures": [
+      {
+        "mode": "still",
+        "amplitude": 0,
+        "speed": "medium",
+        "duration_s": 1,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 3.6
+  },
+  {
+    "topic": "Poetic image",
+    "input": "The city lights look like fallen stars tonight.",
+    "plan": {
+      "type": "scene",
+      "intent": "Describes a view of city lights",
+      "affect": {
+        "cues": [
+          "city lights",
+          "look like fallen stars"
+        ],
+        "emotion": "contentment",
+        "secondary": "none",
+        "valence": 0.5,
+        "arousal": 0.3,
+        "intensity": 0.4
+      },
+      "gestures": [
+        {
+          "mode": "breathe",
+          "amplitude": 50,
+          "speed": "slow",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "Beautiful stars, indeed."
+    },
+    "final_gestures": [
+      {
+        "mode": "breathe",
+        "amplitude": 50,
+        "speed": "slow",
+        "duration_s": 6,
+        "direction": "right"
+      }
+    ],
+    "source": "model",
+    "seconds": 3.0
+  },
+  {
+    "topic": "Explicitly named emotions",
+    "input": "Show me how I feel right now: nervous but excited.",
+    "plan": {
+      "type": "emotion",
+      "intent": "They want to see nervous excitement through Sema's movements",
+      "affect": {
+        "cues": [
+          "nervous but excited"
+        ],
+        "emotion": "excitement",
+        "secondary": "nervousness",
+        "valence": 0.7,
+        "arousal": 0.8,
+        "intensity": 0.8
+      },
+      "gestures": [
+        {
+          "mode": "wave",
+          "amplitude": 80,
+          "speed": "fast",
+          "duration_s": 5,
+          "direction": "right"
+        },
+        {
+          "mode": "shiver",
+          "amplitude": 30,
+          "speed": "medium",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "Nervous and excited, just like you."
+    },
+    "final_gestures": [
+      {
+        "mode": "ripple",
+        "amplitude": 77,
+        "speed": "very_fast",
+        "duration_s": 5.2,
+        "direction": "right"
+      },
+      {
+        "mode": "shiver",
+        "amplitude": 46,
+        "speed": "very_fast",
+        "duration_s": 5.2,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 4.1
+  },
+  {
+    "topic": "Anger and unfairness",
+    "input": "My roommate ate my food again and lied about it. I'm so done.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Angry and fed up with the roommate's behavior",
+      "affect": {
+        "cues": [
+          "ate my food",
+          "lied about it",
+          "so done"
+        ],
+        "emotion": "anger",
+        "secondary": "none",
+        "valence": -0.8,
+        "arousal": 0.6,
+        "intensity": 0.9
+      },
+      "gestures": [
+        {
+          "mode": "shiver",
+          "amplitude": 50,
+          "speed": "fast",
+          "duration_s": 4,
+          "direction": "right"
+        }
+      ],
+      "reply": "That's really frustrating."
+    },
+    "final_gestures": [
+      {
+        "mode": "ripple",
+        "amplitude": 84,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      },
+      {
+        "mode": "shiver",
+        "amplitude": 75,
+        "speed": "very_fast",
+        "duration_s": 6.4,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.3
+  },
+  {
+    "topic": "Gratitude and love",
+    "input": "My grandma called just to say she's proud of me.",
+    "plan": {
+      "type": "emotion",
+      "intent": "Proud of themselves, happy to hear from grandma",
+      "affect": {
+        "cues": [
+          "grandma called",
+          "proud of me"
+        ],
+        "emotion": "joy",
+        "secondary": "love",
+        "valence": 0.8,
+        "arousal": 0.7,
+        "intensity": 0.7
+      },
+      "gestures": [
+        {
+          "mode": "wave",
+          "amplitude": 70,
+          "speed": "medium",
+          "duration_s": 6,
+          "direction": "right"
+        }
+      ],
+      "reply": "That's wonderful!"
+    },
+    "final_gestures": [
+      {
+        "mode": "wave",
+        "amplitude": 70,
+        "speed": "fast",
+        "duration_s": 5.8,
+        "direction": "right"
+      },
+      {
+        "mode": "heartbeat",
+        "amplitude": 38,
+        "speed": "medium",
+        "duration_s": 5.8,
+        "direction": "right"
+      }
+    ],
+    "source": "emotion engine",
+    "seconds": 3.2
+  }
+]
