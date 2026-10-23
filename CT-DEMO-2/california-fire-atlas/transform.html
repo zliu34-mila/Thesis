@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wildfire Echo — Data Transformation</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    >
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        color: #f5f5f5;
+        background: #17191c;
+        font: 15px/1.45 system-ui, sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        inset: 0;
+        background: #24272b;
+      }
+
+      .screen-label {
+        position: absolute;
+        z-index: 500;
+        top: 20px;
+        left: 20px;
+        max-width: calc(100% - 40px);
+        padding: 12px 16px;
+        border: 1px solid #ffffff26;
+        border-radius: 8px;
+        background: #17191ce8;
+        backdrop-filter: blur(8px);
+      }
+
+      .screen-label h1 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .screen-label p {
+        margin: 3px 0 0;
+        color: #c0c4c9;
+        font-size: 0.85rem;
+      }
+
+      .transform-panel {
+        position: absolute;
+        z-index: 500;
+        right: 20px;
+        bottom: 20px;
+        left: 20px;
+        max-height: min(48vh, 440px);
+        overflow: auto;
+        padding: 18px 22px;
+        border: 1px solid #ffffff26;
+        border-radius: 10px;
+        background: #17191cf2;
+        box-shadow: 0 12px 40px #0008;
+        backdrop-filter: blur(12px);
+      }
+
+      .panel-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 20px;
+        align-items: baseline;
+        margin-bottom: 8px;
+      }
+
+      .panel-heading-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .panel-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .panel-toggle {
+        min-height: 32px;
+        border: 1px solid #ffffff40;
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: #e4e7e9;
+        background: #25292e;
+        font: inherit;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      .panel-toggle:hover {
+        border-color: #ffcf83;
+        color: #ffdfad;
+      }
+
+      .transform-panel.collapsed {
+        max-height: none;
+        overflow: hidden;
+        padding: 12px 16px;
+      }
+
+      .transform-panel.collapsed .panel-header {
+        margin-bottom: 0;
+      }
+
+      .transform-panel.collapsed .panel-content {
+        display: none;
+      }
+
+      .art-mapping-note {
+        margin: 0;
+        color: #ffcf83;
+        font-size: 0.85rem;
+      }
+
+      .transform-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      .transform-table th,
+      .transform-table td {
+        padding: 9px 10px;
+        border-top: 1px solid #383d42;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .transform-table th {
+        color: #aeb4ba;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .transform-table td:first-child {
+        width: 13%;
+        color: #ffcf83;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+
+      .transform-table td:nth-child(2),
+      .transform-table td:nth-child(3) {
+        width: 20%;
+      }
+
+      .formula {
+        display: block;
+        margin-top: 4px;
+        color: #aeb4ba;
+        font: 0.78rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      .missing-reason {
+        display: block;
+        margin-top: 4px;
+        color: #ff9a8f;
+        font-size: 0.8rem;
+      }
+
+      .panel-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 16px;
+        margin-top: 12px;
+        color: #aeb4ba;
+        font-size: 0.82rem;
+      }
+
+      .footer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .back-link {
+        color: #ffcf83;
+      }
+
+      .generate-button {
+        min-height: 38px;
+        border: 1px solid #ffbd59;
+        border-radius: 5px;
+        padding: 7px 14px;
+        color: #17191c;
+        background: #ffbd59;
+        font: inherit;
+        font-weight: 650;
+        text-decoration: none;
+      }
+
+      .no-data {
+        position: absolute;
+        z-index: 600;
+        top: 50%;
+        left: 50%;
+        width: min(480px, calc(100% - 32px));
+        padding: 24px;
+        transform: translate(-50%, -50%);
+        border: 1px solid #626970;
+        border-radius: 8px;
+        background: #202327;
+        text-align: center;
+      }
+
+      .no-data a {
+        color: #ffcf83;
+      }
+
+      @media (max-width: 700px) {
+        .screen-label {
+          top: 10px;
+          left: 10px;
+        }
+
+        .transform-panel {
+          right: 8px;
+          bottom: 8px;
+          left: 8px;
+          max-height: 58vh;
+          padding: 12px;
+        }
+
+        .transform-table {
+          font-size: 0.8rem;
+        }
+
+        .transform-table th,
+        .transform-table td {
+          padding: 7px 5px;
+        }
+
+        .transform-table td:first-child {
+          width: auto;
+          white-space: normal;
+        }
+
+        .transform-table td:nth-child(2),
+        .transform-table td:nth-child(3) {
+          width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" aria-label="Full-screen map of the selected NASA FIRMS hotspot"></div>
+    <header class="screen-label">
+      <h1>Wildfire Echo · Transform Data</h1>
+      <p id="selected-location">Loading selected hotspot…</p>
+    </header>
+    <section class="transform-panel" aria-labelledby="transform-title">
+      <div class="panel-header">
+        <h2 id="transform-title">Transformation process</h2>
+        <div class="panel-heading-actions">
+          <p class="art-mapping-note">Artistic mapping, not a fire behavior prediction.</p>
+          <button
+            class="panel-toggle"
+            id="transform-toggle"
+            type="button"
+            aria-expanded="true"
+            aria-controls="transform-content"
+          >Collapse</button>
+        </div>
+      </div>
+      <div class="panel-content" id="transform-content">
+        <table class="transform-table">
+          <thead>
+            <tr>
+              <th scope="col">Signal</th>
+              <th scope="col">Original value</th>
+              <th scope="col">Value used</th>
+              <th scope="col">Transformation result</th>
+            </tr>
+          </thead>
+          <tbody id="transform-rows"></tbody>
+        </table>
+        <div class="panel-footer">
+          <span>Current weather model data · <span id="weather-valid-time">Weather time unavailable</span> UTC</span>
+          <div class="footer-actions">
+            <a class="back-link" href="/">Back to California Fire Atlas</a>
+            <a class="generate-button" id="generate-button" href="/generate">Generate</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="no-data" id="no-data" hidden>
+      <h1>Transformation data unavailable</h1>
+      <p>Return to the atlas, select a hotspot, load its weather, and transfer the data again.</p>
+      <a href="/">Back to California Fire Atlas</a>
+    </section>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      const transformPanel = document.querySelector(".transform-panel");
+      const transformToggle = document.getElementById("transform-toggle");
+      transformToggle.addEventListener("click", () => {
+        const collapsed = transformPanel.classList.toggle("collapsed");
+        transformToggle.textContent = collapsed ? "Expand" : "Collapse";
+        transformToggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+
+      const map = L.map("map", { zoomControl: false });
+      L.control.zoom({ position: "topright" }).addTo(map);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      const transferText = sessionStorage.getItem("wildfireEchoTransfer");
+      const generateButton = document.getElementById("generate-button");
+      generateButton.hidden = true;
+      if (!transferText) {
+        document.querySelector(".screen-label").hidden = true;
+        document.querySelector(".transform-panel").hidden = true;
+        document.getElementById("no-data").hidden = false;
+      } else {
+        try {
+          const transfer = JSON.parse(transferText);
+          const { fire, weather, transformed } = transfer;
+          if (!fire || !weather || !transformed || !transformed.parameters || !transformed.inputs) {
+            throw new Error("The transferred data is incomplete.");
+          }
+          const fireData = JSON.parse(sessionStorage.getItem("wildfireEchoFires") || "null");
+          const hasValidFireRecords = Array.isArray(fireData?.fires) &&
+            fireData.fires.some((record) =>
+              Number.isFinite(record.latitude) && Number.isFinite(record.longitude)
+            );
+          if (!hasValidFireRecords) {
+            throw new Error("The loaded hotspot records are missing. Return to the atlas and load NASA data again.");
+          }
+
+          const latitude = Number(fire.latitude);
+          const longitude = Number(fire.longitude);
+          if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            throw new Error("The selected hotspot coordinates are invalid.");
+          }
+          map.setView([latitude, longitude], 9);
+          L.circleMarker([latitude, longitude], {
+            radius: 9,
+            weight: 3,
+            color: "#fff1d1",
+            fillColor: "#ffbd59",
+            fillOpacity: 1
+          }).addTo(map).bindPopup("Selected NASA FIRMS hotspot").openPopup();
+          document.getElementById("selected-location").textContent =
+            `${latitude.toFixed(4)}, ${longitude.toFixed(4)} · Fire observation ${fire.date || "Unknown"} ${String(fire.time || "").padStart(4, "0")} UTC`;
+          document.getElementById("weather-valid-time").textContent =
+            weather.current?.time || "Weather time unavailable";
+
+          function displayNumber(value, digits = 2) {
+            if (typeof value !== "number" || !Number.isFinite(value)) {
+              return "null";
+            }
+            const normalized = Math.abs(value) < 1e-10 ? 0 : value;
+            return normalized.toFixed(digits);
+          }
+
+          function displayRaw(input, unit) {
+            const raw = input.raw;
+            if (
+              raw === null ||
+              raw === undefined ||
+              (typeof raw === "string" && (!raw.trim() || raw.trim().toLowerCase() === "unknown")) ||
+              (typeof raw === "number" && !Number.isFinite(raw))
+            ) {
+              return "Missing";
+            }
+            if (typeof raw === "string" && !Number.isFinite(Number(raw.trim()))) {
+              return "Missing";
+            }
+            return `${String(raw)} ${unit}`;
+          }
+
+          function appendRow({ signal, original, used, result, formula, reason }) {
+            const row = document.createElement("tr");
+            const cells = [signal, original, used, result];
+            for (const value of cells) {
+              const cell = document.createElement("td");
+              cell.textContent = value;
+              row.append(cell);
+            }
+            const resultCell = row.lastElementChild;
+            const formulaElement = document.createElement("span");
+            formulaElement.className = "formula";
+            formulaElement.textContent = `Formula: ${formula}`;
+            resultCell.append(formulaElement);
+            if (reason) {
+              const reasonElement = document.createElement("span");
+              reasonElement.className = "missing-reason";
+              reasonElement.textContent = `Reason: ${reason}`;
+              resultCell.append(reasonElement);
+            }
+            document.getElementById("transform-rows").append(row);
+          }
+
+          const { inputs, parameters, formulas, missingReasons } = transformed;
+          appendRow({
+            signal: "FRP → Pitch",
+            original: displayRaw(inputs.frp, "MW"),
+            used: inputs.frp.used === null
+              ? "null"
+              : `${displayNumber(inputs.frp.used)} MW${inputs.frp.clamped ? " (clamped to 0–100 MW)" : ""}`,
+            result: parameters.pitchHz === null ? "null" : `${displayNumber(parameters.pitchHz, 1)} Hz`,
+            formula: formulas.pitchHz,
+            reason: missingReasons.pitchHz
+          });
+
+          const windOriginal = displayRaw(inputs.windSpeed, inputs.windSpeed.unit || "unit unavailable");
+          let windUsed = "null";
+          if (inputs.windSpeed.valueKmh !== null) {
+            windUsed = `${displayNumber(inputs.windSpeed.valueKmh)} km/h`;
+            if (inputs.windSpeed.convertedToKmh) {
+              windUsed += ` (converted from ${displayRaw(inputs.windSpeed, inputs.windSpeed.unit)})`;
+            }
+            if (inputs.windSpeed.clamped) {
+              windUsed += ` → ${displayNumber(inputs.windSpeed.used)} km/h (clamped to 0–60 km/h)`;
+            }
+          }
+          appendRow({
+            signal: "Wind speed → Tempo",
+            original: windOriginal,
+            used: windUsed,
+            result: parameters.tempoBpm === null ? "null" : `${displayNumber(parameters.tempoBpm, 1)} BPM`,
+            formula: formulas.tempoBpm,
+            reason: missingReasons.tempoBpm
+          });
+
+          const downwindResult = parameters.downwindDegrees === null
+            ? "null"
+            : `${displayNumber(parameters.downwindDegrees, 0)}° downwind; dx=${displayNumber(parameters.dx, 3)}, dy=${displayNumber(parameters.dy, 3)}`;
+          const usedDirection = inputs.windDirection.used;
+          appendRow({
+            signal: "Wind direction → Particles",
+            original: displayRaw(inputs.windDirection, "° (from)"),
+            used: usedDirection === null
+              ? "null"
+              : `${displayNumber(usedDirection, 0)}° (from)${inputs.windDirection.normalized ? " (normalized to 0–360°)" : ""}`,
+            result: downwindResult,
+            formula: `${formulas.downwindDegrees}; ${formulas.dx}; ${formulas.dy}`,
+            reason: missingReasons.downwindDegrees
+          });
+          if (parameters.downwindDegrees !== null) {
+            const directionResultCell = document.getElementById("transform-rows").lastElementChild.lastElementChild;
+            const vectorReason = missingReasons.dx || missingReasons.dy;
+            if (vectorReason) {
+              const reasonElement = document.createElement("span");
+              reasonElement.className = "missing-reason";
+              reasonElement.textContent = `Reason: ${vectorReason}`;
+              directionResultCell.append(reasonElement);
+            }
+          }
+
+          appendRow({
+            signal: "Humidity → Opacity",
+            original: displayRaw(inputs.humidity, "%"),
+            used: inputs.humidity.used === null
+              ? "null"
+              : `${displayNumber(inputs.humidity.used, 0)}%${inputs.humidity.clamped ? " (clamped to 0–100%)" : ""}`,
+            result: parameters.particleOpacity === null
+              ? "null"
+              : displayNumber(parameters.particleOpacity, 2),
+            formula: formulas.particleOpacity,
+            reason: missingReasons.particleOpacity
+          });
+          generateButton.hidden = false;
+        } catch (error) {
+          document.querySelector(".screen-label").hidden = true;
+          document.querySelector(".transform-panel").hidden = true;
+          const noData = document.getElementById("no-data");
+          noData.hidden = false;
+          noData.querySelector("p").textContent =
+            error instanceof Error ? error.message : "Could not read transferred data.";
+        }
+      }
+    </script>
+  </body>
+</html>

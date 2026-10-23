@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#050607">
+    <title>Wildfire Echo — Particle Landscape</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        color: #e7e9e8;
+        background: #050607;
+        font-synthesis: none;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body,
+      #scene {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background:
+          radial-gradient(ellipse at 50% 42%, #1a1c1c 0, #0a0b0b 45%, #050607 78%);
+      }
+
+      #scene {
+        position: fixed;
+        inset: 0;
+        touch-action: none;
+        cursor: grab;
+        outline: none;
+      }
+
+      #scene:active {
+        cursor: grabbing;
+      }
+
+      #scene canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .topbar {
+        position: fixed;
+        z-index: 5;
+        top: 18px;
+        right: 22px;
+        left: 22px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        pointer-events: none;
+      }
+
+      .brand {
+        max-width: 360px;
+        text-shadow: 0 1px 12px #000;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 0.88rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .brand p {
+        margin: 5px 0 0;
+        color: #959b9c;
+        font-size: 0.74rem;
+        letter-spacing: 0.06em;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 7px;
+        pointer-events: auto;
+      }
+
+      .toolbar button,
+      .toolbar a,
+      .panel-toggle,
+      .about-close,
+      .error-return {
+        min-height: 34px;
+        border: 1px solid #aab0ad55;
+        border-radius: 3px;
+        padding: 6px 10px;
+        color: #e0e2df;
+        background: #0c0e0f88;
+        font: inherit;
+        font-size: 0.74rem;
+        text-decoration: none;
+        cursor: pointer;
+        backdrop-filter: blur(4px);
+      }
+
+      .toolbar button:hover,
+      .toolbar a:hover,
+      .panel-toggle:hover,
+      .about-close:hover,
+      .error-return:hover {
+        border-color: #e6c59a;
+        color: #fff0d5;
+      }
+
+      .side-panel {
+        position: fixed;
+        z-index: 4;
+        top: 112px;
+        bottom: 84px;
+        width: min(242px, 23vw);
+        overflow: auto;
+        padding: 10px 12px;
+        border-left: 1px solid #d6d7d322;
+        background: linear-gradient(90deg, #05060700, #080a0bcc 42%, #080a0b66);
+        scrollbar-width: thin;
+        scrollbar-color: #59605c transparent;
+      }
+
+      .side-panel.left {
+        left: 18px;
+        border-right: 1px solid #d6d7d322;
+        border-left: 0;
+        background: linear-gradient(270deg, #05060700, #080a0bcc 42%, #080a0b66);
+      }
+
+      .side-panel.right {
+        right: 18px;
+      }
+
+      .panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .panel-heading h2 {
+        margin: 0;
+        color: #d9ddda;
+        font-size: 0.71rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .panel-toggle {
+        display: none;
+        min-height: 28px;
+        padding: 3px 7px;
+      }
+
+      .eyebrow {
+        margin: 16px 0 5px;
+        color: #8b9291;
+        font-size: 0.62rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .readout {
+        margin: 0;
+        color: #d8dad7;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .readout.subtle {
+        color: #969c9a;
+      }
+
+      .data-pair {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 6px 0;
+        font-size: 0.74rem;
+      }
+
+      .data-pair span:first-child {
+        color: #919795;
+      }
+
+      .data-pair span:last-child {
+        color: #d8dad7;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .legend {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 5px 10px;
+        margin-top: 8px;
+        color: #9ca19e;
+        font-size: 0.7rem;
+      }
+
+      .swatch {
+        display: inline-block;
+        width: 22px;
+        height: 2px;
+        margin-right: 6px;
+        vertical-align: middle;
+        background: linear-gradient(90deg, #59636a, #b9afa0, #f2d3a4);
+      }
+
+      .wind-legend {
+        margin-top: 12px;
+        color: #969c9a;
+        font-size: 0.68rem;
+        line-height: 1.5;
+      }
+
+      .fire-impact {
+        position: fixed;
+        z-index: 6;
+        top: 18px;
+        left: 50%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 3px 14px;
+        width: min(390px, calc(100vw - 24px));
+        border: 1px solid #f0d4aa55;
+        border-radius: 5px;
+        padding: 8px 11px;
+        color: #e7e9e8;
+        background: #0a0c0de8;
+        box-shadow: 0 8px 28px #0009;
+        backdrop-filter: blur(8px);
+        pointer-events: none;
+        transform: translateX(-50%);
+        font-size: 0.66rem;
+        line-height: 1.35;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .fire-impact[hidden] {
+        display: none;
+      }
+
+      .fire-impact h2 {
+        grid-column: 1 / -1;
+        margin: 0;
+        color: #f0d4aa;
+        font-size: 0.64rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .fire-impact p {
+        min-width: 0;
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .fire-impact .impact-note {
+        grid-column: 1 / -1;
+        margin-top: 2px;
+        color: #999f9b;
+        font-size: 0.6rem;
+      }
+
+      .bottom-note {
+        position: fixed;
+        z-index: 4;
+        right: 260px;
+        bottom: 18px;
+        left: 260px;
+        color: #a3a8a4;
+        font-size: 0.7rem;
+        text-align: center;
+        text-shadow: 0 1px 8px #000;
+        pointer-events: none;
+      }
+
+      .status-line {
+        position: fixed;
+        z-index: 4;
+        bottom: 18px;
+        left: 22px;
+        color: #9ca19e;
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        text-shadow: 0 1px 8px #000;
+        pointer-events: none;
+      }
+
+      dialog {
+        width: min(500px, calc(100% - 32px));
+        border: 1px solid #8b918d55;
+        border-radius: 6px;
+        padding: 24px;
+        color: #e7e9e8;
+        background: #101314ed;
+        box-shadow: 0 12px 40px #000b;
+      }
+
+      dialog::backdrop {
+        background: #0009;
+        backdrop-filter: blur(4px);
+      }
+
+      dialog h2 {
+        margin: 0 0 12px;
+        font-size: 1rem;
+      }
+
+      dialog p {
+        color: #b4b9b5;
+        font-size: 0.88rem;
+        line-height: 1.65;
+      }
+
+      .about-close {
+        margin-top: 10px;
+      }
+
+      .scene-error {
+        position: fixed;
+        z-index: 10;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        padding: 24px;
+        background: #050607f2;
+        text-align: center;
+      }
+
+      .scene-error[hidden] {
+        display: none;
+      }
+
+      .scene-error h2 {
+        margin: 0 0 8px;
+      }
+
+      .scene-error p {
+        max-width: 460px;
+        color: #aeb4ba;
+      }
+
+      .empty-state {
+        position: fixed;
+        z-index: 3;
+        top: 50%;
+        left: 50%;
+        width: min(430px, calc(100% - 32px));
+        transform: translate(-50%, -50%);
+        color: #d9ddda;
+        text-align: center;
+        text-shadow: 0 2px 10px #000;
+        pointer-events: none;
+      }
+
+      .empty-state[hidden] {
+        display: none;
+      }
+
+      .empty-state h2 {
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .empty-state p {
+        color: #989e9a;
+        font-size: 0.82rem;
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          top: 10px;
+          right: 10px;
+          left: 10px;
+          gap: 8px;
+        }
+
+        .brand {
+          max-width: 190px;
+        }
+
+        .brand h1 {
+          font-size: 0.75rem;
+          letter-spacing: 0.08em;
+        }
+
+        .brand p {
+          font-size: 0.65rem;
+        }
+
+        .toolbar {
+          max-width: 58%;
+          gap: 5px;
+        }
+
+        .toolbar button,
+        .toolbar a {
+          min-height: 30px;
+          padding: 4px 7px;
+          font-size: 0.67rem;
+        }
+
+        .side-panel {
+          top: 72px;
+          bottom: 62px;
+          width: min(220px, 42vw);
+          padding: 9px;
+          border: 1px solid #d6d7d322;
+          background: #080a0bd9;
+          backdrop-filter: blur(5px);
+        }
+
+        .side-panel.left {
+          left: 8px;
+        }
+
+        .side-panel.right {
+          right: 8px;
+        }
+
+        .panel-toggle {
+          display: inline-block;
+        }
+
+        .side-panel.collapsed {
+          bottom: auto;
+          width: auto;
+          overflow: hidden;
+          padding: 5px 7px;
+        }
+
+        .side-panel.collapsed .panel-content {
+          display: none;
+        }
+
+        .bottom-note {
+          right: 10px;
+          bottom: 10px;
+          left: 10px;
+          font-size: 0.64rem;
+        }
+
+        .status-line {
+          bottom: 38px;
+          left: 12px;
+          font-size: 0.62rem;
+        }
+
+        .fire-impact {
+          top: 132px;
+          width: min(360px, calc(100vw - 24px));
+          gap: 3px 8px;
+          font-size: 0.62rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #scene {
+          cursor: default;
+        }
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.170.0/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="scene" tabindex="0" aria-label="Interactive three-dimensional wildfire data particle landscape"></div>
+    <header class="topbar">
+      <div class="brand">
+        <h1>Wildfire Echo · Generate</h1>
+        <p>Selected hotspot as an isolated particle cloud</p>
+      </div>
+      <nav class="toolbar" aria-label="Scene controls">
+        <a href="/transform" id="back-button">Back</a>
+        <button id="reset-view" type="button">Reset view</button>
+        <button id="pause-motion" type="button">Pause motion</button>
+        <button id="about-button" type="button">About</button>
+      </nav>
+    </header>
+
+    <aside class="side-panel left" id="left-panel">
+      <div class="panel-heading">
+        <h2>NASA FIRMS records</h2>
+        <button class="panel-toggle" type="button" aria-expanded="true">Hide</button>
+      </div>
+      <div class="panel-content">
+        <p class="eyebrow">Data source</p>
+        <p class="readout" id="data-sources">—</p>
+        <p class="eyebrow">Query window</p>
+        <p class="readout" id="query-window">—</p>
+        <p class="eyebrow">Query completed · UTC</p>
+        <p class="readout" id="query-time">—</p>
+        <p class="eyebrow">Loaded hotspot detection records</p>
+        <p class="readout" id="record-count">0 records</p>
+        <p class="eyebrow">Active detection</p>
+        <p class="readout" id="active-coordinates">—</p>
+        <div class="data-pair"><span>Observation · UTC</span><span id="active-time">—</span></div>
+        <div class="data-pair"><span>FRP</span><span id="active-frp">—</span></div>
+        <div class="data-pair"><span>Confidence</span><span id="active-confidence">—</span></div>
+      </div>
+    </aside>
+
+    <aside class="side-panel right" id="right-panel">
+      <div class="panel-heading">
+        <h2>Weather &amp; mappings</h2>
+        <button class="panel-toggle" type="button" aria-expanded="true">Hide</button>
+      </div>
+      <div class="panel-content">
+        <p class="eyebrow">Current weather · not fire-time history</p>
+        <div class="data-pair"><span>Valid time · UTC</span><span id="weather-time">—</span></div>
+        <div class="data-pair"><span>Temperature</span><span id="weather-temperature">—</span></div>
+        <div class="data-pair"><span>Humidity</span><span id="weather-humidity">—</span></div>
+        <div class="data-pair"><span>Wind speed</span><span id="weather-speed">—</span></div>
+        <div class="data-pair"><span>Wind from</span><span id="weather-direction">—</span></div>
+
+        <p class="eyebrow">Visual mapping</p>
+        <div class="legend">
+          <span><i class="swatch"></i>FRP color</span><span>log-normalized 0–100 MW</span>
+          <span>Cluster density</span><span>0.35 + 1.65 × normalized FRP</span>
+          <span>Rendered detection</span><span>selected hotspot only</span>
+          <span>Selection</span><span>pulsing halo</span>
+        </div>
+        <p class="wind-legend">
+          Normalized FRP = log1p(clamp(FRP, 0, 100)) / log(101). Missing FRP is neutral.
+        </p>
+        <p class="wind-legend" id="motion-mapping">
+          The selected hotspot is the only rendered detection. Motion and height are artistic parameters,
+          not measured terrain or local wind observations.
+        </p>
+        <div class="data-pair"><span>Motion</span><span id="motion-state">Running</span></div>
+        <div class="data-pair"><span>Generated pulse · not measured</span><span id="pulse-value">—</span></div>
+      </div>
+    </aside>
+
+    <aside class="fire-impact" id="fire-impact" aria-label="Selected hotspot weather effects" hidden>
+      <h2>Selected hotspot · weather effects</h2>
+      <p id="impact-temperature">Temperature · unavailable</p>
+      <p id="impact-wind">Wind speed · unavailable</p>
+      <p id="impact-direction">Downwind · unavailable</p>
+      <p id="impact-drift">Current drift offset · unavailable</p>
+      <p id="impact-humidity">Humidity spread · unavailable</p>
+      <p class="impact-note">Generated animation parameters, not measured fire changes.</p>
+    </aside>
+
+    <p class="bottom-note">Data-driven artistic expression, not a fire or smoke spread simulation.</p>
+    <p class="status-line" id="scene-status" role="status" aria-live="polite">Preparing data landscape…</p>
+    <section class="empty-state" id="empty-state" hidden>
+      <h2>No valid hotspot records were loaded</h2>
+      <p>Return to California Fire Atlas and load FIRMS data before generating a scene.</p>
+    </section>
+    <section class="scene-error" id="scene-error" hidden>
+      <div>
+        <h2>3D view unavailable</h2>
+        <p id="scene-error-message">This browser could not initialize WebGL. Your fire and weather data are still saved.</p>
+        <a class="error-return" href="/transform">Return to map</a>
+      </div>
+    </section>
+
+    <dialog id="about-dialog">
+      <h2>About this visualization</h2>
+      <p>The isolated point cloud is anchored to the selected NASA FIRMS hotspot detection. Nearby particles are an artistic rendering of that record, not additional fire detections. Other loaded records are not rendered in this view.</p>
+      <p>FRP uses a logarithmic color and density mapping. Retrieved weather affects only the selected hotspot's bounded artistic animation.</p>
+      <p>The 48,000-particle budget is dedicated to the selected detection. Other loaded detections remain available in the record count but are not rendered in this isolated view.</p>
+      <p>Vertical position, particle paths, and the generated pulse are visual parameters. They do not represent terrain, measured height, fire growth, or smoke transport.</p>
+      <button class="about-close" id="about-close" type="button">Close</button>
+    </dialog>
+
+    <script type="module">
+      const transferText = sessionStorage.getItem("wildfireEchoTransfer");
+      const atlasText = sessionStorage.getItem("wildfireEchoFires");
+      const sceneElement = document.getElementById("scene");
+      const sceneStatus = document.getElementById("scene-status");
+      const emptyState = document.getElementById("empty-state");
+      const errorOverlay = document.getElementById("scene-error");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const pageLifecycle = new AbortController();
+
+      function listenPage(target, eventName, handler, options = {}) {
+        target.addEventListener(eventName, handler, { ...options, signal: pageLifecycle.signal });
+      }
+
+      const safeNumber = (value) =>
+        typeof value === "number" && Number.isFinite(value)
+          ? value
+          : typeof value === "string" &&
+              value.trim() &&
+              value.trim().toLowerCase() !== "unknown" &&
+              Number.isFinite(Number(value.trim()))
+            ? Number(value.trim())
+            : null;
+
+      function showError(message) {
+        document.getElementById("scene-error-message").textContent = message;
+        errorOverlay.hidden = false;
+        sceneStatus.textContent = "3D renderer unavailable";
+      }
+
+      const aboutDialog = document.getElementById("about-dialog");
+      listenPage(document.getElementById("about-button"), "click", () => aboutDialog.showModal());
+      listenPage(document.getElementById("about-close"), "click", () => aboutDialog.close());
+      listenPage(aboutDialog, "click", (event) => {
+        if (event.target === aboutDialog) aboutDialog.close();
+      });
+
+      for (const panel of document.querySelectorAll(".side-panel")) {
+        const toggle = panel.querySelector(".panel-toggle");
+        if (window.matchMedia("(max-width: 760px)").matches) {
+          panel.classList.add("collapsed");
+          toggle.textContent = "Show";
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        listenPage(toggle, "click", () => {
+          const collapsed = panel.classList.toggle("collapsed");
+          toggle.textContent = collapsed ? "Show" : "Hide";
+          toggle.setAttribute("aria-expanded", String(!collapsed));
+        });
+      }
+
+      let transfer;
+      let atlas;
+      try {
+        transfer = transferText ? JSON.parse(transferText) : null;
+        atlas = atlasText ? JSON.parse(atlasText) : null;
+      } catch {
+        showError("Saved session data could not be read. Return to the transformation page and transfer the data again.");
+      }
+
+      if (!transfer || !Array.isArray(atlas?.fires)) {
+        emptyState.hidden = false;
+        if (!Array.isArray(atlas?.fires)) {
+          sceneStatus.textContent = "No saved hotspot detection records";
+        } else {
+          emptyState.querySelector("h2").textContent = "Transfer data before generating";
+          emptyState.querySelector("p").textContent =
+            "Return to the transformation page and transfer a selected hotspot with its weather and parameters.";
+          sceneStatus.textContent = "No transferred hotspot data";
+        }
+      } else {
+        const fire = transfer.fire;
+        const weather = transfer.weather;
+        const parameters = transfer.transformed?.parameters;
+        const fires = atlas.fires.filter((record) =>
+          Number.isFinite(record.latitude) &&
+          Number.isFinite(record.longitude) &&
+          Math.abs(record.latitude) <= 90 &&
+          Math.abs(record.longitude) <= 180
+        );
+
+        document.getElementById("data-sources").textContent =
+          Array.isArray(atlas.sources) ? atlas.sources.join(" · ") : "NASA FIRMS";
+        document.getElementById("query-window").textContent =
+          `Last ${Number.isFinite(atlas.rangeDays) ? atlas.rangeDays : 2} days`;
+        document.getElementById("query-time").textContent =
+          atlas.loadedAt ? new Date(atlas.loadedAt).toISOString().replace("T", " ").replace("Z", "") : "Unknown";
+        document.getElementById("record-count").textContent =
+          `${fires.length.toLocaleString()} loaded detection records`;
+
+        if (
+          !fire ||
+          !weather?.current ||
+          !parameters ||
+          !Number.isFinite(fire.latitude) ||
+          !Number.isFinite(fire.longitude)
+        ) {
+          showError("The selected hotspot, weather, or transformed parameters are missing. Return to the transformation page.");
+        } else if (fires.length === 0) {
+          emptyState.hidden = false;
+          sceneStatus.textContent = "No valid hotspot detection records";
+        } else {
+          const current = weather.current;
+          const weatherUnits = weather.current_units || {};
+          const latitude = fire.latitude;
+          const longitude = fire.longitude;
+          const frp = safeNumber(fire.frp);
+          const temperature = safeNumber(current.temperature_2m);
+          const humidity = weatherUnits.relative_humidity_2m === "%"
+            ? safeNumber(current.relative_humidity_2m)
+            : null;
+          const windDirection = weatherUnits.wind_direction_10m === "°"
+            ? safeNumber(current.wind_direction_10m)
+            : null;
+          const windSpeed = safeNumber(current.wind_speed_10m);
+          const normalizedTime = (value) => String(value || "").trim().padStart(4, "0");
+          const activeObservationIndex = fires.findIndex((record) =>
+            record.latitude === latitude &&
+            record.longitude === longitude &&
+            record.date === fire.date &&
+            normalizedTime(record.time) === normalizedTime(fire.time) &&
+            (frp === null || safeNumber(record.frp) === frp)
+          );
+
+          document.getElementById("active-coordinates").textContent =
+            `${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`;
+          document.getElementById("active-time").textContent =
+            `${fire.date || "Unknown"} ${String(fire.time || "").padStart(4, "0")} UTC`;
+          document.getElementById("active-frp").textContent =
+            frp === null ? "Unavailable" : `${frp} MW`;
+          document.getElementById("active-confidence").textContent =
+            typeof fire.confidence === "string" && fire.confidence.trim() ? fire.confidence : "Unavailable";
+          document.getElementById("weather-time").textContent =
+            current.time ? `${current.time} UTC` : "Unavailable";
+          document.getElementById("weather-temperature").textContent =
+            temperature === null
+              ? "Unavailable"
+              : `${temperature.toFixed(1)} ${weatherUnits.temperature_2m || "unit unavailable"}`;
+          document.getElementById("weather-humidity").textContent =
+            humidity === null
+              ? "Unavailable"
+              : `${humidity.toFixed(0)} ${weatherUnits.relative_humidity_2m || "unit unavailable"}`;
+          document.getElementById("weather-speed").textContent =
+            windSpeed === null
+              ? "Unavailable"
+              : `${windSpeed.toFixed(1)} ${weatherUnits.wind_speed_10m || "unit unavailable"}`;
+          document.getElementById("weather-direction").textContent =
+            windDirection === null ? "Unavailable" : `${windDirection.toFixed(0)}°`;
+
+          if (reducedMotion) {
+            document.getElementById("pause-motion").textContent = "Start motion";
+            document.getElementById("motion-state").textContent = "Paused · reduced motion";
+          }
+
+          try {
+            if (activeObservationIndex === -1) {
+              throw new Error("The selected hotspot is not present in the loaded NASA records. Return to the atlas and transfer the data again.");
+            }
+            const THREE = await import("three");
+            let scene;
+            let camera;
+            let renderer;
+            let particleGeometry;
+            let particleMaterial;
+            let particlePoints;
+            let haloGeometry;
+            let haloMaterial;
+            let haloPoints;
+            let frameGeometry;
+            let frameMaterial;
+            let animationFrame = 0;
+            let disposed = false;
+            let paused = reducedMotion;
+            let startTime = performance.now();
+            let accumulatedTime = 0;
+            const listeners = [];
+            const renderResources = [];
+
+            try {
+              renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,
+                powerPreference: "low-power"
+              });
+            } catch (error) {
+              throw new Error("WebGL could not be initialized. Enable WebGL or use a supported browser.");
+            }
+
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x050607, 0);
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            sceneElement.append(renderer.domElement);
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x070809, 0.018);
+            const aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera(42, aspect, 0.03, 100);
+
+            const selectedRecord = fires[activeObservationIndex];
+            const projected = [{ record: selectedRecord, x: 0, z: 0 }];
+            const geographicBounds = projected.reduce((bounds, item) => ({
+              minX: Math.min(bounds.minX, item.x),
+              maxX: Math.max(bounds.maxX, item.x),
+              minZ: Math.min(bounds.minZ, item.z),
+              maxZ: Math.max(bounds.maxZ, item.z)
+            }), {
+              minX: Infinity,
+              maxX: -Infinity,
+              minZ: Infinity,
+              maxZ: -Infinity
+            });
+            const { minX, maxX, minZ, maxZ } = geographicBounds;
+            const geographicSpan = Math.max(maxX - minX, maxZ - minZ, 0.001);
+            const sceneScale = 11 / geographicSpan;
+            const centerX = (minX + maxX) / 2;
+            const centerZ = (minZ + maxZ) / 2;
+            for (const item of projected) {
+              item.x = (item.x - centerX) * sceneScale;
+              item.z = (item.z - centerZ) * sceneScale;
+            }
+            const activeIndex = 0;
+
+            const globalParticleBudget = 48000;
+            const pointBudget = globalParticleBudget;
+            const availableExtras = Math.max(0, pointBudget - projected.length);
+            const clusterModels = projected.map((item, index) => {
+              const rawFrp = safeNumber(item.record.frp);
+              const frpForMapping = rawFrp === null ? null : Math.max(0, rawFrp);
+              const frpNorm = frpForMapping === null
+                ? null
+                : Math.min(1, Math.log1p(frpForMapping) / Math.log1p(100));
+              const densityWeight = frpNorm === null ? 0.35 : 0.35 + frpNorm * 1.65;
+              return { ...item, index, rawFrp, frpNorm, densityWeight, count: 1 };
+            });
+            const totalDensity = clusterModels.reduce((sum, cluster) => sum + cluster.densityWeight, 0);
+            for (const cluster of clusterModels) {
+              cluster.count += Math.floor((availableExtras * cluster.densityWeight) / totalDensity);
+            }
+            let assigned = clusterModels.reduce((sum, cluster) => sum + cluster.count, 0);
+            while (assigned < pointBudget) {
+              clusterModels[0].count += 1;
+              assigned += 1;
+            }
+
+            const totalParticles = clusterModels.reduce((sum, cluster) => sum + cluster.count, 0);
+            const positions = new Float32Array(totalParticles * 3);
+            const colors = new Float32Array(totalParticles * 4);
+            const offsets = new Float32Array(totalParticles * 3);
+            const phases = new Float32Array(totalParticles);
+            const pointRanges = [];
+
+            function colorForIntensity(intensity) {
+              const neutral = new THREE.Color("#70797b");
+              const low = new THREE.Color("#59636a");
+              const middle = new THREE.Color("#b2a896");
+              const high = new THREE.Color("#f0d4aa");
+              if (intensity === null) return neutral;
+              if (intensity < 0.55) return low.clone().lerp(middle, intensity / 0.55);
+              return middle.clone().lerp(high, (intensity - 0.55) / 0.45);
+            }
+
+            let cursor = 0;
+            function deterministicUnit(index, seed) {
+              const value = Math.sin(index * 127.1 + seed * 311.7) * 43758.5453;
+              return value - Math.floor(value);
+            }
+
+            for (const cluster of clusterModels) {
+              const color = colorForIntensity(cluster.frpNorm);
+              const selected = cluster.index === activeIndex;
+              const normalizedStrength = cluster.frpNorm === null ? 0.3 : cluster.frpNorm;
+              const visualRadius = 0.9 - normalizedStrength * 0.35;
+              const heightSpread = 0.2 + normalizedStrength * 0.2;
+              const peaks = Array.from({ length: 5 }, (_, peakIndex) => {
+                const peakAngle = deterministicUnit(peakIndex + 1, cluster.index + 61.2) * Math.PI * 2;
+                const peakRadius = 0.12 + deterministicUnit(peakIndex + 1, cluster.index + 79.4) * 0.58;
+                return {
+                  x: Math.cos(peakAngle) * peakRadius,
+                  z: Math.sin(peakAngle) * peakRadius,
+                  height: 0.1 + deterministicUnit(peakIndex + 1, cluster.index + 97.6) * 0.12,
+                  width: 0.28 + deterministicUnit(peakIndex + 1, cluster.index + 113.8) * 0.16
+                };
+              });
+              const clusterStart = cursor;
+
+              for (let localIndex = 0; localIndex < cluster.count; localIndex += 1) {
+                const point = cursor++;
+                const radialProgress = Math.sqrt(deterministicUnit(localIndex + 1, cluster.index + 0.5));
+                const angle = deterministicUnit(localIndex + 1, cluster.index + 19.73) * Math.PI * 2;
+                const radialOffset = visualRadius * radialProgress;
+                const offsetX = Math.cos(angle) * radialOffset;
+                const offsetZ = Math.sin(angle) * radialOffset;
+                const normalizedX = visualRadius ? offsetX / visualRadius : 0;
+                const normalizedZ = visualRadius ? offsetZ / visualRadius : 0;
+                let peakHeight = 0;
+                for (const peak of peaks) {
+                  const dx = normalizedX - peak.x;
+                  const dz = normalizedZ - peak.z;
+                  peakHeight = Math.max(
+                    peakHeight,
+                    peak.height * Math.exp(-(dx * dx + dz * dz) / (2 * peak.width * peak.width))
+                  );
+                }
+                const heightShape = THREE.MathUtils.clamp(
+                  -0.045 +
+                    0.03 * Math.sin(normalizedX * 9 + normalizedZ * 5) +
+                    0.025 * Math.cos(normalizedZ * 11 - normalizedX * 4) +
+                    peakHeight,
+                  -0.14,
+                  0.26
+                );
+                const offsetY = 0.12 + heightShape * heightSpread;
+                offsets[point * 3] = offsetX;
+                offsets[point * 3 + 1] = offsetY;
+                offsets[point * 3 + 2] = offsetZ;
+                positions[point * 3] = cluster.x + offsetX;
+                positions[point * 3 + 1] = offsetY;
+                positions[point * 3 + 2] = cluster.z + offsetZ;
+                phases[point] = deterministicUnit(point + 1, cluster.index + 37.11) * Math.PI * 2;
+                const alpha = selected ? 0.78 : cluster.frpNorm === null ? 0.38 : 0.38 + cluster.frpNorm * 0.42;
+                colors[point * 4] = color.r;
+                colors[point * 4 + 1] = color.g;
+                colors[point * 4 + 2] = color.b;
+                colors[point * 4 + 3] = alpha;
+              }
+
+              pointRanges.push({
+                start: clusterStart,
+                count: cluster.count,
+                x: cluster.x,
+                z: cluster.z,
+                spread: visualRadius,
+                heightSpread,
+                selected,
+                density: cluster.densityWeight
+              });
+            }
+
+            particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
+            particleGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 4));
+            particleMaterial = new THREE.PointsMaterial({
+              size: 0.015,
+              sizeAttenuation: true,
+              transparent: true,
+              vertexColors: true,
+              depthWrite: false,
+              blending: THREE.NormalBlending
+            });
+            particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particlePoints);
+            renderResources.push(particleGeometry, particleMaterial);
+
+            const frameVertices = [];
+            const projectedBounds = projected.reduce((bounds, item) => ({
+              minX: Math.min(bounds.minX, item.x),
+              maxX: Math.max(bounds.maxX, item.x),
+              minZ: Math.min(bounds.minZ, item.z),
+              maxZ: Math.max(bounds.maxZ, item.z)
+            }), {
+              minX: Infinity,
+              maxX: -Infinity,
+              minZ: Infinity,
+              maxZ: -Infinity
+            });
+            const framePadding = Math.max(...pointRanges.map((cluster) => cluster.spread)) + 0.2;
+            const frameMinX = projectedBounds.minX - framePadding;
+            const frameMaxX = projectedBounds.maxX + framePadding;
+            const frameMinZ = projectedBounds.minZ - framePadding;
+            const frameMaxZ = projectedBounds.maxZ + framePadding;
+            const frameBottom = -2.5;
+            const frameTop = 2.5;
+            const corners = [
+              [frameMinX, frameBottom, frameMinZ],
+              [frameMaxX, frameBottom, frameMinZ],
+              [frameMaxX, frameBottom, frameMaxZ],
+              [frameMinX, frameBottom, frameMaxZ],
+              [frameMinX, frameTop, frameMinZ],
+              [frameMaxX, frameTop, frameMinZ],
+              [frameMaxX, frameTop, frameMaxZ],
+              [frameMinX, frameTop, frameMaxZ]
+            ];
+            const edges = [
+              [0, 1], [1, 2], [2, 3], [3, 0],
+              [4, 5], [5, 6], [6, 7], [7, 4],
+              [0, 4], [1, 5], [2, 6], [3, 7]
+            ];
+            for (const [from, to] of edges) {
+              frameVertices.push(...corners[from], ...corners[to]);
+            }
+            frameGeometry = new THREE.BufferGeometry();
+            frameGeometry.setAttribute("position", new THREE.Float32BufferAttribute(frameVertices, 3));
+            frameMaterial = new THREE.LineBasicMaterial({
+              color: 0xb9c0bf,
+              transparent: true,
+              opacity: 0.15,
+              depthWrite: false
+            });
+            scene.add(new THREE.LineSegments(frameGeometry, frameMaterial));
+            renderResources.push(frameGeometry, frameMaterial);
+
+            if (activeIndex !== -1) {
+              const activeCluster = pointRanges[activeIndex];
+              const ringCount = 180;
+              const ringPositions = new Float32Array(ringCount * 3);
+              for (let index = 0; index < ringCount; index += 1) {
+                const angle = (index / ringCount) * Math.PI * 2;
+                ringPositions[index * 3] = activeCluster.x + Math.cos(angle) * 0.2;
+                ringPositions[index * 3 + 1] = 0;
+                ringPositions[index * 3 + 2] = activeCluster.z + Math.sin(angle) * 0.2;
+              }
+              haloGeometry = new THREE.BufferGeometry();
+              haloGeometry.setAttribute("position", new THREE.BufferAttribute(ringPositions, 3).setUsage(THREE.DynamicDrawUsage));
+              haloMaterial = new THREE.PointsMaterial({
+                color: 0xffe5c2,
+                size: 1.2,
+                sizeAttenuation: false,
+                transparent: true,
+                opacity: 0.8,
+                depthWrite: false,
+                blending: THREE.NormalBlending
+              });
+              haloPoints = new THREE.Points(haloGeometry, haloMaterial);
+              scene.add(haloPoints);
+              renderResources.push(haloGeometry, haloMaterial);
+            }
+
+            const projectedSpan = Math.max(
+              projectedBounds.maxX - projectedBounds.minX,
+              projectedBounds.maxZ - projectedBounds.minZ,
+              0.8
+            );
+            const radius = Math.max(8.5, Math.min(25, projectedSpan * 1.65 + 2));
+            let cameraRadius = radius;
+            let yaw = 0.25;
+            let elevation = 0.6;
+            const target = new THREE.Vector3(0, 0, 0);
+
+            function updateCamera() {
+              const horizontal = cameraRadius * Math.cos(elevation);
+              camera.position.set(
+                target.x + horizontal * Math.sin(yaw),
+                target.y + cameraRadius * Math.sin(elevation),
+                target.z + horizontal * Math.cos(yaw)
+              );
+              camera.lookAt(target);
+            }
+            updateCamera();
+
+            let dragging = false;
+            let pointerX = 0;
+            let pointerY = 0;
+            function onPointerDown(event) {
+              if (!event.isPrimary || (event.button !== undefined && event.button !== 0)) return;
+              dragging = true;
+              pointerX = event.clientX;
+              pointerY = event.clientY;
+              sceneElement.setPointerCapture(event.pointerId);
+              sceneElement.focus({ preventScroll: true });
+            }
+            function onPointerMove(event) {
+              if (!dragging) return;
+              const deltaX = event.clientX - pointerX;
+              const deltaY = event.clientY - pointerY;
+              pointerX = event.clientX;
+              pointerY = event.clientY;
+              yaw -= deltaX * 0.005;
+              elevation = THREE.MathUtils.clamp(elevation + deltaY * 0.004, 0.08, 1.35);
+              updateCamera();
+              if (paused) renderFrame(performance.now());
+            }
+            function onPointerUp(event) {
+              dragging = false;
+              if (sceneElement.hasPointerCapture(event.pointerId)) {
+                sceneElement.releasePointerCapture(event.pointerId);
+              }
+            }
+            function onWheel(event) {
+              event.preventDefault();
+              cameraRadius = THREE.MathUtils.clamp(cameraRadius * Math.exp(event.deltaY * 0.0012), 0.2, 35);
+              particleMaterial.size = Math.max(0.0004, 0.015 * Math.min(1, cameraRadius / radius));
+              updateCamera();
+              if (paused) renderFrame(performance.now());
+            }
+            function onResize() {
+              camera.aspect = window.innerWidth / window.innerHeight;
+              camera.updateProjectionMatrix();
+              renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+              renderer.setSize(window.innerWidth, window.innerHeight);
+              if (paused) renderFrame(performance.now());
+            }
+            function listen(targetElement, type, handler, options) {
+              targetElement.addEventListener(type, handler, options);
+              listeners.push(() => targetElement.removeEventListener(type, handler, options));
+            }
+            listen(sceneElement, "pointerdown", onPointerDown);
+            listen(sceneElement, "pointermove", onPointerMove);
+            listen(sceneElement, "pointerup", onPointerUp);
+            listen(sceneElement, "pointercancel", onPointerUp);
+            listen(sceneElement, "wheel", onWheel, { passive: false });
+            listen(window, "resize", onResize);
+
+            listenPage(document.getElementById("reset-view"), "click", () => {
+              cameraRadius = radius;
+              particleMaterial.size = 0.015;
+              yaw = 0.25;
+              elevation = 0.6;
+              updateCamera();
+              if (paused) renderFrame(performance.now());
+            });
+            const pauseButton = document.getElementById("pause-motion");
+            listenPage(pauseButton, "click", () => {
+              paused = !paused;
+              if (!paused) startTime = performance.now() - accumulatedTime;
+              pauseButton.textContent = paused ? "Resume motion" : "Pause motion";
+              document.getElementById("motion-state").textContent = paused ? "Paused" : "Running";
+              if (paused) {
+                if (animationFrame) window.cancelAnimationFrame(animationFrame);
+                animationFrame = window.requestAnimationFrame(draw);
+              } else {
+                animationFrame = window.requestAnimationFrame(draw);
+              }
+            });
+
+            const downwindDegrees = weatherUnits.wind_direction_10m === "°" && windDirection !== null
+              ? safeNumber(parameters.downwindDegrees)
+              : null;
+            const downwindRadians = downwindDegrees === null
+              ? null
+              : (downwindDegrees * Math.PI) / 180;
+            const downwindX = downwindRadians === null ? 0 : Math.sin(downwindRadians);
+            const downwindZ = downwindRadians === null ? 0 : -Math.cos(downwindRadians);
+            const windSpeedKmh = weatherUnits.wind_speed_10m === "km/h" ? windSpeed : null;
+            const windFactor = windSpeedKmh === null
+              ? 0
+              : THREE.MathUtils.clamp(windSpeedKmh / 60, 0, 1);
+            const humidityFactor = humidity === null
+              ? 1
+              : 1.4 - THREE.MathUtils.clamp(humidity / 100, 0, 1) * 0.8;
+            const driftAmplitude = windFactor * 0.055;
+            const selectedPhaseSpeed = 0.18 + windFactor * 0.36;
+            const impactPanel = document.getElementById("fire-impact");
+            const impactTemperature = document.getElementById("impact-temperature");
+            const impactWind = document.getElementById("impact-wind");
+            const impactDirection = document.getElementById("impact-direction");
+            const impactDrift = document.getElementById("impact-drift");
+            const impactHumidity = document.getElementById("impact-humidity");
+
+            impactTemperature.textContent = temperature === null
+              ? "Temperature unavailable · not mapped to animation"
+              : `Temp ${temperature.toFixed(1)} ${weatherUnits.temperature_2m || ""} · context only`;
+            impactWind.textContent = windSpeedKmh === null
+              ? "Wind speed unavailable · baseline motion"
+              : `Wind ${windSpeedKmh.toFixed(1)} km/h · sway ${selectedPhaseSpeed.toFixed(2)} rad/s`;
+            impactDirection.textContent = downwindDegrees === null
+              ? "Downwind direction unavailable"
+              : `From ${windDirection.toFixed(0)}° → downwind ${downwindDegrees.toFixed(0)}°`;
+            impactHumidity.textContent = humidity === null
+              ? "Humidity unavailable · default spread ×1.00"
+              : `Humidity ${humidity.toFixed(0)}% · spread ×${humidityFactor.toFixed(2)}`;
+            impactPanel.hidden = false;
+
+            const impactAnchor = new THREE.Vector3();
+            const activeCluster = pointRanges[activeIndex];
+
+            function positionImpactPanel(drift, lateralDrift) {
+              impactDrift.textContent =
+                `Wind-axis offset ${drift >= 0 ? "+" : ""}${drift.toFixed(3)} scene units`;
+              const cloudCenterX = activeCluster.x + drift * downwindX + lateralDrift * downwindZ;
+              const cloudCenterZ = activeCluster.z + drift * downwindZ - lateralDrift * downwindX;
+              impactAnchor.set(cloudCenterX, 0.12, cloudCenterZ).project(camera);
+              impactPanel.hidden = impactAnchor.z <= -1 || impactAnchor.z >= 1;
+            }
+
+            function renderFrame(now) {
+              if (!paused) accumulatedTime = (now - startTime) / 1000;
+              const time = accumulatedTime;
+              let activeDrift = 0;
+              let activeLateralDrift = 0;
+
+              for (const cluster of pointRanges) {
+                const frequency = cluster.selected ? selectedPhaseSpeed : 0.18;
+                const clusterDrift = cluster.selected ? Math.sin(time * frequency) * driftAmplitude : 0;
+                const lateralDrift = cluster.selected ? Math.sin(time * frequency * 0.63) * driftAmplitude * 0.28 : 0;
+                if (cluster.selected) {
+                  activeDrift = clusterDrift;
+                  activeLateralDrift = lateralDrift;
+                }
+
+                for (let point = cluster.start; point < cluster.start + cluster.count; point += 1) {
+                  const offsetIndex = point * 3;
+                  const phase = phases[point];
+                  const spreadFactor = cluster.selected ? humidityFactor : 1;
+                  const xOffset = offsets[offsetIndex] * spreadFactor;
+                  const zOffset = offsets[offsetIndex + 2] * spreadFactor;
+                  const flowPhase = time * frequency +
+                    (xOffset * downwindX + zOffset * downwindZ) * 1.6 +
+                    phase * 0.16;
+                  const sway = Math.sin(flowPhase) * 0.84 +
+                    Math.sin(time * frequency * 1.55 + phase * 0.45) * 0.16;
+                  positions[offsetIndex] = cluster.x + xOffset +
+                    clusterDrift * downwindX + lateralDrift * downwindZ +
+                    sway * cluster.spread * 0.035;
+                  positions[offsetIndex + 1] = offsets[offsetIndex + 1] +
+                    (Math.sin(time * frequency * 0.82 + phase * 0.2) * 0.8 +
+                      Math.sin(time * frequency * 1.3 + phase * 0.42) * 0.2) *
+                    cluster.heightSpread * 0.14;
+                  positions[offsetIndex + 2] = cluster.z + zOffset +
+                    clusterDrift * downwindZ - lateralDrift * downwindX +
+                    Math.cos(time * frequency * 0.91 + phase * 0.8) *
+                    cluster.spread * 0.035;
+                }
+              }
+
+              particleGeometry.attributes.position.needsUpdate = true;
+              if (haloPoints && haloGeometry) {
+                const pulse = (Math.sin(time * 1.15) + 1) / 2;
+                const activeCluster = pointRanges[activeIndex];
+                const ringRadius = activeCluster.spread + 0.18 + pulse * 0.1;
+                const ringPositions = haloGeometry.attributes.position.array;
+                for (let index = 0; index < ringPositions.length / 3; index += 1) {
+                  const angle = (index / (ringPositions.length / 3)) * Math.PI * 2;
+                  ringPositions[index * 3] = activeCluster.x + Math.cos(angle) * ringRadius;
+                  ringPositions[index * 3 + 1] = 0;
+                  ringPositions[index * 3 + 2] = activeCluster.z + Math.sin(angle) * ringRadius;
+                }
+                haloGeometry.attributes.position.needsUpdate = true;
+                haloMaterial.opacity = 0.45 + pulse * 0.3;
+                document.getElementById("pulse-value").textContent =
+                  `${pulse.toFixed(2)} · generated sine pulse`;
+              }
+
+              positionImpactPanel(activeDrift, activeLateralDrift);
+              renderer.render(scene, camera);
+            }
+
+            function draw(now) {
+              if (disposed) return;
+              renderFrame(now);
+              animationFrame = paused ? 0 : window.requestAnimationFrame(draw);
+            }
+
+            sceneStatus.textContent =
+              `Selected detection only · ${totalParticles.toLocaleString()} particles · ${fires.length.toLocaleString()} records loaded`;
+            const motionNotes = [];
+            if (windSpeedKmh === null) {
+              motionNotes.push("wind speed unavailable; slow baseline sway applies");
+            } else {
+              motionNotes.push(`${windSpeedKmh.toFixed(1)} km/h gently modulates selected-cluster sway rate and drift strength`);
+            }
+            if (downwindDegrees === null) {
+              motionNotes.push("wind direction unavailable; no directional drift");
+            } else {
+              motionNotes.push(`${downwindDegrees.toFixed(0)}° is the selected-cluster downwind bearing (x east, z south)`);
+            }
+            if (humidity === null) {
+              motionNotes.push("humidity unavailable; default spread applies");
+            } else {
+              motionNotes.push(`humidity sets selected-cluster spread ×${humidityFactor.toFixed(2)}`);
+            }
+            document.getElementById("motion-mapping").textContent =
+              `${motionNotes.join("; ")}. Only the selected record is rendered. Height and motion are artistic parameters, not measured terrain or a weather simulation.`;
+
+            function disposeScene() {
+              if (disposed) return;
+              disposed = true;
+              window.cancelAnimationFrame(animationFrame);
+              for (const removeListener of listeners) removeListener();
+              pageLifecycle.abort();
+              for (const resource of renderResources) resource.dispose();
+              renderer.dispose();
+              renderer.forceContextLoss();
+              renderer.domElement.remove();
+            }
+            listenPage(window, "pagehide", disposeScene, { once: true });
+            listenPage(window, "beforeunload", disposeScene, { once: true });
+            animationFrame = window.requestAnimationFrame(draw);
+          } catch (error) {
+            const detail = error instanceof Error ? error.message : "Unknown initialization error.";
+            showError(`Unable to load or initialize the 3D renderer. Check the connection and WebGL support. ${detail}`);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

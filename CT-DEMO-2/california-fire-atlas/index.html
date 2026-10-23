@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>California Fire Atlas</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    >
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: #f5f5f5;
+        background: #17191c;
+        font: 16px/1.5 system-ui, sans-serif;
+      }
+
+      main {
+        width: min(1320px, calc(100% - 32px));
+        margin: 32px auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+      }
+
+      .description {
+        margin: 0 0 20px;
+        color: #c0c4c9;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: end;
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: grid;
+        flex: 1 1 280px;
+        gap: 4px;
+      }
+
+      input,
+      button {
+        min-height: 44px;
+        border: 1px solid #626970;
+        border-radius: 6px;
+        padding: 9px 12px;
+        font: inherit;
+      }
+
+      input {
+        color: #f5f5f5;
+        background: #24272b;
+      }
+
+      button {
+        min-width: 100px;
+        color: #17191c;
+        background: #ffbd59;
+        border-color: #ffbd59;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
+
+      #status {
+        min-height: 24px;
+        margin: 8px 0 12px;
+        color: #d9dde1;
+      }
+
+      #status[data-error="true"] {
+        color: #ff9a8f;
+      }
+
+      #map {
+        height: min(68vh, 650px);
+        min-height: 360px;
+        border-radius: 8px;
+        background: #24272b;
+      }
+
+      .atlas-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .echo-panel {
+        min-height: 360px;
+        padding: 20px;
+        border: 1px solid #383d42;
+        border-radius: 8px;
+        background: #202327;
+      }
+
+      .echo-panel h2 {
+        margin: 0 0 4px;
+        font-size: 1.2rem;
+      }
+
+      .echo-intro,
+      .echo-empty {
+        color: #aeb4ba;
+      }
+
+      .fire-details {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px 16px;
+        margin: 18px 0 24px;
+      }
+
+      .fire-details dt {
+        color: #aeb4ba;
+      }
+
+      .fire-details dd {
+        margin: 0;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .weather-section {
+        margin-top: 24px;
+        padding: 24px;
+        scroll-margin-top: 16px;
+        border: 1px solid #383d42;
+        border-radius: 8px;
+        background: #202327;
+      }
+
+      .weather-section > h2 {
+        margin: 0 0 16px;
+        font-size: 1.2rem;
+      }
+
+      .weather-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 20px;
+      }
+
+      .weather-view,
+      .weather-data-panel {
+        min-height: 300px;
+        padding: 20px;
+        border: 1px solid #383d42;
+        border-radius: 6px;
+        background: #191c1f;
+      }
+
+      .weather-view {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse at 85% 15%, #314758 0, transparent 45%),
+          linear-gradient(145deg, #202c35, #191c1f 72%);
+      }
+
+      .weather-view h3,
+      .weather-data-panel h3 {
+        margin: 0 0 12px;
+        font-size: 1rem;
+      }
+
+      .weather-view-state,
+      .weather-caveat,
+      .weather-request-meta,
+      .weather-error {
+        margin: 8px 0;
+        color: #aeb4ba;
+        font-size: 0.9rem;
+      }
+
+      .weather-current {
+        display: flex;
+        min-height: 180px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .weather-temperature {
+        margin: 0;
+        font-size: clamp(3rem, 7vw, 5.5rem);
+        font-weight: 300;
+        letter-spacing: -0.06em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .weather-temperature-unit {
+        color: #c0c4c9;
+        font-size: 1.4rem;
+        letter-spacing: 0;
+      }
+
+      .weather-wind-view {
+        display: grid;
+        width: 120px;
+        height: 120px;
+        flex: 0 0 120px;
+        place-items: center;
+        border: 1px solid #56616a;
+        border-radius: 50%;
+        background: #17191c88;
+      }
+
+      .weather-wind-view svg {
+        width: 72px;
+        height: 72px;
+        overflow: visible;
+      }
+
+      #weather-wind-arrow {
+        transform-origin: 36px 36px;
+      }
+
+      .weather-caveat {
+        color: #ffcf83;
+      }
+
+      .weather-values {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px 16px;
+        margin: 16px 0;
+      }
+
+      .weather-values dt {
+        color: #aeb4ba;
+      }
+
+      .weather-values dd {
+        margin: 0;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .weather-error {
+        color: #ff9a8f;
+      }
+
+      .retry-weather {
+        min-height: 36px;
+        min-width: 0;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+      }
+
+      .weather-section[hidden],
+      .weather-current[hidden],
+      .weather-values[hidden],
+      .transfer-data[hidden] {
+        display: none;
+      }
+
+      .weather-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
+
+      .transfer-data {
+        min-width: 140px;
+      }
+
+      .chain-title {
+        margin: 0 0 12px;
+        font-size: 1rem;
+      }
+
+      .chain-steps {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .chain-steps li {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+      }
+
+      .step-number {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border: 1px solid #626970;
+        border-radius: 50%;
+        color: #aeb4ba;
+        font-size: 0.8rem;
+      }
+
+      .chain-steps li[data-state="complete"] .step-number {
+        border-color: #ffbd59;
+        color: #17191c;
+        background: #ffbd59;
+      }
+
+      .step-label {
+        display: block;
+      }
+
+      .step-state {
+        display: block;
+        color: #aeb4ba;
+        font-size: 0.85rem;
+      }
+
+      .chain-steps li[data-state="complete"] .step-state {
+        color: #ffcf83;
+      }
+
+      .note {
+        color: #aeb4ba;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 820px) {
+        .atlas-layout {
+          grid-template-columns: 1fr;
+        }
+
+        #map {
+          height: min(60vh, 560px);
+        }
+
+        .echo-panel {
+          min-height: 0;
+        }
+
+        .weather-section {
+          padding: 16px;
+        }
+
+        .weather-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .weather-view,
+        .weather-data-panel {
+          min-height: 240px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>California Fire Atlas</h1>
+      <p class="description">
+        View NASA FIRMS near-real-time satellite fire detections for California.
+      </p>
+
+      <div class="controls">
+        <button id="start" type="button">Start</button>
+      </div>
+      <p class="note">
+        Get a free key from the
+        <a href="https://firms.modaps.eosdis.nasa.gov/api/area/" target="_blank" rel="noreferrer">NASA FIRMS API page</a>.
+        Set the <code>FIRMS_MAP_KEY</code> environment variable before starting
+        <code>python3 server.py</code>, then open
+        <a href="http://localhost:8000">http://localhost:8000</a>. Keep your real key out of this page and source code.
+      </p>
+      <p id="status" role="status" aria-live="polite">Select Start to load recent satellite detections.</p>
+      <div class="atlas-layout">
+        <div id="map" aria-label="Map of NASA FIRMS fire detections in California"></div>
+        <aside class="echo-panel" aria-labelledby="echo-title">
+          <h2 id="echo-title">Wildfire Echo</h2>
+          <p class="echo-intro">Select a hotspot on the map to begin its reaction chain.</p>
+          <p class="echo-empty" id="echo-empty">No hotspot selected.</p>
+          <dl class="fire-details" id="fire-details" hidden>
+            <dt>Latitude</dt>
+            <dd id="fire-latitude"></dd>
+            <dt>Longitude</dt>
+            <dd id="fire-longitude"></dd>
+            <dt>Observation date</dt>
+            <dd id="fire-date"></dd>
+            <dt>Observation time</dt>
+            <dd id="fire-time"></dd>
+            <dt>FRP</dt>
+            <dd id="fire-frp"></dd>
+            <dt>Confidence</dt>
+            <dd id="fire-confidence"></dd>
+          </dl>
+          <h3 class="chain-title">Reaction chain</h3>
+          <ol class="chain-steps" aria-live="polite">
+            <li data-step="hotspot" data-state="pending">
+              <span class="step-number">1</span>
+              <span><span class="step-label">Select NASA satellite hotspot</span><span class="step-state">Waiting for selection</span></span>
+            </li>
+            <li data-step="weather" data-state="unavailable">
+              <span class="step-number">2</span>
+              <span><span class="step-label">Request local weather</span><span class="step-state">Waiting for hotspot selection</span></span>
+            </li>
+            <li data-step="transform" data-state="unavailable">
+              <span class="step-number">3</span>
+              <span><span class="step-label">Transform data</span><span class="step-state">Not connected yet</span></span>
+            </li>
+            <li data-step="generate" data-state="unavailable">
+              <span class="step-number">4</span>
+              <span><span class="step-label">Generate sound and animation</span><span class="step-state">Not connected yet</span></span>
+            </li>
+          </ol>
+        </aside>
+      </div>
+      <section class="weather-section" id="weather-section" aria-labelledby="weather-section-title" hidden>
+        <h2 id="weather-section-title">Local Weather</h2>
+        <div class="weather-layout">
+          <section class="weather-view" aria-labelledby="weather-view-title">
+            <div>
+              <h3 id="weather-view-title">Weather view</h3>
+              <p class="weather-view-state" id="weather-view-state">Waiting for current weather data.</p>
+            </div>
+            <div class="weather-current" id="weather-current" hidden>
+              <p class="weather-temperature"><span id="weather-temperature">—</span><span class="weather-temperature-unit"> °C</span></p>
+              <div class="weather-wind-view" role="img" aria-label="Wind direction compass">
+                <svg viewBox="0 0 72 72" aria-hidden="true">
+                  <text x="36" y="9" text-anchor="middle" fill="#c0c4c9" font-size="8">N</text>
+                  <circle cx="36" cy="38" r="25" fill="none" stroke="#56616a" stroke-width="1"></circle>
+                  <g id="weather-wind-arrow">
+                    <path d="M36 19 L29 39 L36 35 L43 39 Z" fill="#ffbd59"></path>
+                    <path d="M36 35 L36 56" stroke="#ffbd59" stroke-width="2"></path>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </section>
+          <section class="weather-data-panel" aria-labelledby="weather-data-title">
+            <h3 id="weather-data-title">Weather data</h3>
+            <p class="weather-caveat">Current weather model data; this is not historical weather from the fire detection time.</p>
+            <p class="weather-request-meta">Request coordinates: <span id="weather-coordinates">—</span></p>
+            <p class="weather-request-meta" id="weather-duration">Waiting for request.</p>
+            <dl class="weather-values" id="weather-values" hidden>
+              <dt>Weather valid time</dt>
+              <dd id="weather-time"></dd>
+              <dt>Temperature</dt>
+              <dd><span id="weather-temperature-value"></span> °C</dd>
+              <dt>Relative humidity</dt>
+              <dd id="weather-humidity"></dd>
+              <dt>Wind speed</dt>
+              <dd id="weather-wind-speed"></dd>
+              <dt>Wind direction (from)</dt>
+              <dd id="weather-wind-direction"></dd>
+            </dl>
+            <p class="weather-error" id="weather-error" role="alert" hidden></p>
+            <button class="retry-weather" id="retry-weather" type="button" hidden>Retry weather</button>
+          </section>
+        </div>
+        <div class="weather-actions">
+          <button class="transfer-data" id="transfer-data" type="button" hidden>transfer data</button>
+        </div>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      const map = L.map("map").setView([37.2, -119.5], 6);
+      const fireLayer = L.layerGroup().addTo(map);
+      const status = document.getElementById("status");
+      const startButton = document.getElementById("start");
+      const echoEmpty = document.getElementById("echo-empty");
+      const fireDetails = document.getElementById("fire-details");
+      const weatherReport = document.getElementById("weather-section");
+      const weatherCurrent = document.getElementById("weather-current");
+      const weatherViewState = document.getElementById("weather-view-state");
+      const weatherValues = document.getElementById("weather-values");
+      const weatherError = document.getElementById("weather-error");
+      const weatherDuration = document.getElementById("weather-duration");
+      const retryWeatherButton = document.getElementById("retry-weather");
+      const transferDataButton = document.getElementById("transfer-data");
+      const selectedFireMarkerStyle = {
+        radius: 9,
+        weight: 3,
+        color: "#fff1d1",
+        fillColor: "#ffbd59",
+        fillOpacity: 1
+      };
+      const defaultFireMarkerStyle = {
+        radius: 6,
+        weight: 1,
+        color: "#fff1d1",
+        fillColor: "#ed3b22",
+        fillOpacity: 0.9
+      };
+      let selectedFireMarker = null;
+      let selectedFire = null;
+      let selectedWeather = null;
+      let weatherRequestId = 0;
+      let weatherController = null;
+      let fireAtlasQuery = null;
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      function setStatus(message, isError = false) {
+        status.textContent = message;
+        status.dataset.error = String(isError);
+      }
+
+      function resetEchoChain() {
+        echoEmpty.hidden = false;
+        fireDetails.hidden = true;
+        for (const step of document.querySelectorAll(".chain-steps li")) {
+          step.dataset.state = step.dataset.step === "hotspot" ? "pending" : "unavailable";
+          step.querySelector(".step-state").textContent =
+            step.dataset.step === "hotspot"
+              ? "Waiting for selection"
+              : step.dataset.step === "weather"
+                ? "Waiting for hotspot selection"
+                : "Not connected yet";
+        }
+      }
+
+      function setWeatherStep(state, message) {
+        const step = document.querySelector('[data-step="weather"]');
+        step.dataset.state = state;
+        step.querySelector(".step-state").textContent = message;
+      }
+
+      function clearWeatherReport() {
+        selectedWeather = null;
+        weatherReport.hidden = true;
+        weatherCurrent.hidden = true;
+        weatherValues.hidden = true;
+        weatherError.hidden = true;
+        retryWeatherButton.hidden = true;
+        transferDataButton.hidden = true;
+        document.getElementById("weather-coordinates").textContent = "—";
+        weatherDuration.textContent = "Waiting for request.";
+        weatherViewState.textContent = "Waiting for current weather data.";
+        for (const id of [
+          "weather-time",
+          "weather-temperature",
+          "weather-temperature-value",
+          "weather-humidity",
+          "weather-wind-speed",
+          "weather-wind-direction"
+        ]) {
+          document.getElementById(id).textContent = "";
+        }
+        document.getElementById("weather-wind-arrow").style.visibility = "";
+      }
+
+      function formatWeatherNumber(value, digits = 1) {
+        return typeof value === "number" && Number.isFinite(value)
+          ? value.toFixed(digits)
+          : "Unavailable";
+      }
+
+      async function requestWeather(fire) {
+        if (weatherController) {
+          weatherController.abort();
+        }
+        const requestId = ++weatherRequestId;
+        const controller = new AbortController();
+        weatherController = controller;
+        const startedAt = performance.now();
+        const latitude = Number(fire.latitude.toFixed(6));
+        const longitude = Number(fire.longitude.toFixed(6));
+
+        weatherValues.hidden = true;
+        weatherError.hidden = true;
+        retryWeatherButton.hidden = true;
+        transferDataButton.hidden = true;
+        for (const id of [
+          "weather-time",
+          "weather-temperature",
+          "weather-humidity",
+          "weather-wind-speed",
+          "weather-wind-direction"
+        ]) {
+          document.getElementById(id).textContent = "";
+        }
+        weatherReport.hidden = false;
+        document.getElementById("weather-coordinates").textContent =
+          `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+        weatherDuration.textContent = "Request in progress...";
+        weatherViewState.textContent = "Requesting current conditions...";
+        setWeatherStep("loading", "Requesting current conditions...");
+
+        try {
+          const response = await fetch("/api/weather", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ latitude, longitude }),
+            signal: controller.signal
+          });
+          if (requestId !== weatherRequestId) {
+            return;
+          }
+          if (response.headers.get("X-Fire-Atlas-Version") !== "3") {
+            throw new Error(
+              `The local server does not support weather requests yet (HTTP ${response.status}). Stop older servers on port 8000, restart with python3 server.py, then reload this page.`
+            );
+          }
+          if (!response.ok) {
+            const detail = (await response.text()).trim();
+            throw new Error(detail || `Weather request failed (HTTP ${response.status}).`);
+          }
+
+          const payload = await response.json();
+          if (requestId !== weatherRequestId) {
+            return;
+          }
+          const current = payload.current;
+          if (!current || typeof current.time !== "string") {
+            throw new Error("Open-Meteo returned an incomplete current weather response.");
+          }
+
+          selectedWeather = payload;
+          document.getElementById("weather-time").textContent = `${current.time} UTC`;
+          const temperature = formatWeatherNumber(current.temperature_2m);
+          document.getElementById("weather-temperature").textContent = temperature;
+          document.getElementById("weather-temperature-value").textContent = temperature;
+          document.getElementById("weather-humidity").textContent =
+            `${formatWeatherNumber(current.relative_humidity_2m, 0)}%`;
+          document.getElementById("weather-wind-speed").textContent =
+            `${formatWeatherNumber(current.wind_speed_10m)} km/h`;
+          document.getElementById("weather-wind-direction").textContent =
+            `${formatWeatherNumber(current.wind_direction_10m, 0)}°`;
+          const windDirection = current.wind_direction_10m;
+          const windArrow = document.getElementById("weather-wind-arrow");
+          if (typeof windDirection === "number" && Number.isFinite(windDirection)) {
+            windArrow.style.transform = `rotate(${windDirection}deg)`;
+            windArrow.style.visibility = "";
+          } else {
+            windArrow.style.visibility = "hidden";
+          }
+          weatherCurrent.hidden = false;
+          weatherViewState.textContent = `Current conditions · ${current.time} UTC`;
+          weatherValues.hidden = false;
+          weatherDuration.textContent =
+            `Request completed in ${(performance.now() - startedAt).toFixed(0)} ms.`;
+          setWeatherStep("complete", "Current weather received");
+          transferDataButton.hidden = false;
+        } catch (error) {
+          if (requestId !== weatherRequestId || (error instanceof DOMException && error.name === "AbortError")) {
+            return;
+          }
+          weatherError.textContent = error instanceof Error
+            ? error.message
+            : "Could not load current weather.";
+          selectedWeather = null;
+          weatherError.hidden = false;
+          weatherViewState.textContent = "Weather data unavailable.";
+          retryWeatherButton.hidden = false;
+          weatherDuration.textContent =
+            `Request failed after ${(performance.now() - startedAt).toFixed(0)} ms.`;
+          setWeatherStep("error", "Request failed");
+        } finally {
+          if (requestId === weatherRequestId) {
+            weatherController = null;
+          }
+        }
+      }
+
+      function startChain(fire) {
+        resetEchoChain();
+        document.getElementById("fire-latitude").textContent = fire.latitude.toFixed(4);
+        document.getElementById("fire-longitude").textContent = fire.longitude.toFixed(4);
+        document.getElementById("fire-date").textContent = fire.date || "Unknown";
+        const observationTime = String(fire.time || "").trim();
+        document.getElementById("fire-time").textContent = observationTime
+          ? `${observationTime.padStart(4, "0")} UTC`
+          : "Unknown";
+        document.getElementById("fire-frp").textContent =
+          fire.frp === "unknown" ? "Unknown" : `${fire.frp} MW`;
+        document.getElementById("fire-confidence").textContent = fire.confidence || "unknown";
+
+        echoEmpty.hidden = true;
+        fireDetails.hidden = false;
+        const hotspotStep = document.querySelector('[data-step="hotspot"]');
+        hotspotStep.dataset.state = "complete";
+        hotspotStep.querySelector(".step-state").textContent = "Complete";
+      }
+
+      retryWeatherButton.addEventListener("click", () => {
+        if (selectedFire) {
+          requestWeather(selectedFire);
+        }
+      });
+
+      function readNumericValue(value, label) {
+        if (
+          value === null ||
+          value === undefined ||
+          (typeof value === "string" && (!value.trim() || value.trim().toLowerCase() === "unknown")) ||
+          (typeof value !== "number" && typeof value !== "string")
+        ) {
+          return { value: null, reason: `${label} is missing.` };
+        }
+
+        const numericValue = typeof value === "number" ? value : Number(value.trim());
+        if (!Number.isFinite(numericValue)) {
+          return { value: null, reason: `${label} is not a finite number.` };
+        }
+        return { value: numericValue, reason: null };
+      }
+
+      function readUnit(units, field, expected, label) {
+        const unit = units?.[field];
+        if (typeof unit !== "string" || !unit.trim()) {
+          return { value: null, reason: `${label} unit is missing.` };
+        }
+        if (unit.trim().toLowerCase() !== expected) {
+          return { value: null, reason: `${label} unit must be ${expected}; received ${unit}.` };
+        }
+        return { value: unit.trim(), reason: null };
+      }
+
+      function convertWindSpeedToKmh(value, unit) {
+        if (typeof unit !== "string" || !unit.trim()) {
+          return { value: null, reason: "Wind speed unit is missing." };
+        }
+        const normalizedUnit = unit.trim().toLowerCase().replace(/\s+/g, "");
+        const conversionFactors = new Map([
+          ["km/h", 1],
+          ["kmh", 1],
+          ["m/s", 3.6],
+          ["ms⁻¹", 3.6],
+          ["mph", 1.609344],
+          ["kn", 1.852],
+          ["knot", 1.852],
+          ["knots", 1.852]
+        ]);
+        const conversionFactor = conversionFactors.get(normalizedUnit);
+        if (conversionFactor === undefined) {
+          return { value: null, reason: `Unsupported wind speed unit: ${unit}.` };
+        }
+        const convertedValue = value === null ? null : value * conversionFactor;
+        if (convertedValue !== null && !Number.isFinite(convertedValue)) {
+          return { value: null, reason: "Wind speed conversion to km/h is not a finite number." };
+        }
+        return {
+          value: convertedValue,
+          conversionFactor,
+          reason: null
+        };
+      }
+
+      function clampValue(value, minimum, maximum) {
+        return Math.min(maximum, Math.max(minimum, value));
+      }
+
+      function transformData(fire, weather) {
+        const current = weather?.current;
+        const units = weather?.current_units;
+        const frpInput = readNumericValue(fire?.frp, "FRP");
+        const windSpeedInput = readNumericValue(current?.wind_speed_10m, "Wind speed");
+        const humidityInput = readNumericValue(current?.relative_humidity_2m, "Relative humidity");
+        const windDirectionInput = readNumericValue(current?.wind_direction_10m, "Wind direction");
+        const windSpeedUnit = units?.wind_speed_10m;
+        const windSpeedKmh = convertWindSpeedToKmh(windSpeedInput.value, windSpeedUnit);
+        const humidityUnit = readUnit(units, "relative_humidity_2m", "%", "Relative humidity");
+        const windDirectionUnit = readUnit(units, "wind_direction_10m", "°", "Wind direction");
+
+        const frpUsed = frpInput.value === null
+          ? null
+          : clampValue(frpInput.value, 0, 100);
+        const windSpeedUsed = windSpeedKmh.value === null
+          ? null
+          : clampValue(windSpeedKmh.value, 0, 60);
+        const humidityUsed = humidityInput.value === null || humidityUnit.value === null
+          ? null
+          : clampValue(humidityInput.value, 0, 100);
+        const windDirectionUsed = windDirectionInput.value === null || windDirectionUnit.value === null
+          ? null
+          : ((windDirectionInput.value % 360) + 360) % 360;
+
+        const pitchHz = frpUsed === null ? null : 220 + (frpUsed / 100) * 660;
+        const tempoBpm = windSpeedUsed === null ? null : 60 + (windSpeedUsed / 60) * 120;
+        const downwindDegrees = windDirectionUsed === null ? null : (windDirectionUsed + 180) % 360;
+        const dxValue = downwindDegrees === null ? null : Math.sin((downwindDegrees * Math.PI) / 180);
+        const dyValue = downwindDegrees === null ? null : -Math.cos((downwindDegrees * Math.PI) / 180);
+        const dx = dxValue !== null && Math.abs(dxValue) < 1e-12 ? 0 : dxValue;
+        const dy = dyValue !== null && Math.abs(dyValue) < 1e-12 ? 0 : dyValue;
+        const particleOpacity = humidityUsed === null ? null : 0.9 - (humidityUsed / 100) * 0.7;
+
+        const inputs = {
+          frp: {
+            raw: fire?.frp,
+            unit: "MW",
+            value: frpInput.value,
+            used: frpUsed,
+            clamped: frpInput.value !== null && frpUsed !== frpInput.value,
+            reason: frpInput.reason
+          },
+          windSpeed: {
+            raw: current?.wind_speed_10m,
+            unit: windSpeedUnit || null,
+            value: windSpeedInput.value,
+            valueKmh: windSpeedKmh.value,
+            outputUnit: "km/h",
+            used: windSpeedUsed,
+            convertedToKmh: windSpeedKmh.conversionFactor !== undefined && windSpeedKmh.conversionFactor !== 1,
+            clamped: windSpeedKmh.value !== null && windSpeedUsed !== windSpeedKmh.value,
+            reason: windSpeedInput.reason || windSpeedKmh.reason
+          },
+          windDirection: {
+            raw: current?.wind_direction_10m,
+            unit: windDirectionUnit.value,
+            value: windDirectionInput.value,
+            used: windDirectionUsed,
+            normalized: windDirectionInput.value !== null &&
+              windDirectionUsed !== null &&
+              windDirectionInput.value !== windDirectionUsed,
+            clamped: false,
+            reason: windDirectionInput.reason || windDirectionUnit.reason
+          },
+          humidity: {
+            raw: current?.relative_humidity_2m,
+            unit: humidityUnit.value,
+            value: humidityInput.value,
+            used: humidityUsed,
+            clamped: humidityInput.value !== null && humidityUsed !== null && humidityUsed !== humidityInput.value,
+            reason: humidityInput.reason || humidityUnit.reason
+          }
+        };
+
+        return {
+          parameters: { pitchHz, tempoBpm, downwindDegrees, dx, dy, particleOpacity },
+          inputs,
+          missingReasons: {
+            pitchHz: inputs.frp.reason,
+            tempoBpm: inputs.windSpeed.reason,
+            downwindDegrees: inputs.windDirection.reason,
+            dx: inputs.windDirection.reason,
+            dy: inputs.windDirection.reason,
+            particleOpacity: inputs.humidity.reason
+          },
+          formulas: {
+            pitchHz: "220 + (FRP / 100) * 660",
+            tempoBpm: "60 + (windSpeed / 60) * 120",
+            downwindDegrees: "(windDirection + 180) % 360",
+            dx: "sin(downwindDegrees * PI / 180)",
+            dy: "-cos(downwindDegrees * PI / 180)",
+            particleOpacity: "0.9 - (humidity / 100) * 0.7"
+          }
+        };
+      }
+
+      transferDataButton.addEventListener("click", () => {
+        if (!selectedFire || !selectedWeather) {
+          return;
+        }
+        try {
+          if (!fireAtlasQuery) {
+            throw new Error("The loaded NASA FIRMS records are unavailable in this page.");
+          }
+          sessionStorage.setItem("wildfireEchoFires", JSON.stringify(fireAtlasQuery));
+          const transformed = transformData(selectedFire, selectedWeather);
+          const transfer = { fire: selectedFire, weather: selectedWeather, transformed };
+          sessionStorage.setItem("wildfireEchoTransfer", JSON.stringify(transfer));
+          document.querySelector('[data-step="transform"]').dataset.state = "complete";
+          document.querySelector('[data-step="transform"] .step-state').textContent = "Complete";
+          window.location.assign("/transform");
+        } catch (error) {
+          weatherError.textContent = error instanceof Error
+            ? `Could not transform the selected data: ${error.message}`
+            : "Could not transform the selected data.";
+          weatherError.hidden = false;
+        }
+      });
+
+      function parseFirmsCsv(csv) {
+        const content = csv.trim();
+        if (!content) {
+          throw new Error("NASA FIRMS returned an empty response instead of CSV data.");
+        }
+
+        const rows = content.split(/\r?\n/);
+        const headers = parseCsvRow(rows[0].replace(/^\uFEFF/, "")).map((header) => header.trim().toLowerCase());
+        const latitudeIndex = headers.indexOf("latitude");
+        const longitudeIndex = headers.indexOf("longitude");
+        const confidenceIndex = headers.indexOf("confidence");
+        const frpIndex = headers.indexOf("frp");
+        const dateIndex = headers.indexOf("acq_date");
+        const timeIndex = headers.indexOf("acq_time");
+
+        if (latitudeIndex === -1 || longitudeIndex === -1) {
+          throw new Error("The FIRMS response did not contain latitude and longitude columns.");
+        }
+
+        return rows.slice(1).filter((row) => row.trim()).map((row, index) => {
+          const fields = parseCsvRow(row);
+          const latitude = Number(fields[latitudeIndex]);
+          const longitude = Number(fields[longitudeIndex]);
+          if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            throw new Error(`FIRMS returned an invalid coordinate on CSV row ${index + 2}.`);
+          }
+          return {
+            latitude,
+            longitude,
+            confidence: fields[confidenceIndex] || "unknown",
+            frp: fields[frpIndex] || "unknown",
+            date: fields[dateIndex] || "",
+            time: fields[timeIndex] || ""
+          };
+        });
+      }
+
+      function parseCsvRow(row) {
+        const fields = [];
+        let field = "";
+        let quoted = false;
+
+        for (let index = 0; index < row.length; index += 1) {
+          const character = row[index];
+          if (character === '"') {
+            if (quoted && row[index + 1] === '"') {
+              field += '"';
+              index += 1;
+            } else {
+              quoted = !quoted;
+            }
+          } else if (character === "," && !quoted) {
+            fields.push(field);
+            field = "";
+          } else {
+            field += character;
+          }
+        }
+
+        if (quoted) {
+          throw new Error("FIRMS returned malformed CSV with an unclosed quoted field.");
+        }
+        fields.push(field);
+        return fields;
+      }
+
+      startButton.addEventListener("click", async () => {
+        startButton.disabled = true;
+        if (weatherController) {
+          weatherController.abort();
+        }
+        weatherRequestId += 1;
+        weatherController = null;
+        selectedFire = null;
+        clearWeatherReport();
+        fireLayer.clearLayers();
+        selectedFireMarker = null;
+        resetEchoChain();
+        setStatus("Loading recent satellite fire detections...");
+
+        try {
+          const response = await fetch("/api/fires", {
+            method: "POST"
+          });
+          if (response.headers.get("X-Fire-Atlas-Version") !== "3") {
+            throw new Error(
+              `The local server did not identify itself as the current Fire Atlas version (HTTP ${response.status}). Stop older servers using port 8000, restart with python3 server.py from the california-fire-atlas folder, then reload this page.`
+            );
+          }
+          if (!response.ok) {
+            const detail = (await response.text()).trim();
+            throw new Error(
+              detail
+                ? `Fire Atlas server request failed (HTTP ${response.status}): ${detail}`
+                : `Fire Atlas server request failed (HTTP ${response.status}).`
+            );
+          }
+
+          const fires = parseFirmsCsv(await response.text());
+          fireAtlasQuery = {
+            fires,
+            sources: [
+              "VIIRS_SNPP_NRT",
+              "VIIRS_NOAA20_NRT",
+              "VIIRS_NOAA21_NRT",
+              "MODIS_NRT"
+            ],
+            rangeDays: 2,
+            loadedAt: new Date().toISOString()
+          };
+          let storageError = null;
+          try {
+            sessionStorage.setItem("wildfireEchoFires", JSON.stringify(fireAtlasQuery));
+          } catch (error) {
+            storageError = error;
+          }
+          for (const fire of fires) {
+            const marker = L.circleMarker([fire.latitude, fire.longitude], {
+              radius: 6,
+              weight: 1,
+              color: "#fff1d1",
+              fillColor: "#ed3b22",
+              fillOpacity: 0.9
+            });
+            const popup = document.createElement("div");
+            const title = document.createElement("strong");
+            title.textContent = "Fire detection";
+            popup.append(title);
+            for (const detail of [
+              `Acquired: ${fire.date} ${fire.time} UTC`,
+              `Confidence: ${fire.confidence}`,
+              `Fire radiative power: ${fire.frp} MW`
+            ]) {
+              popup.append(document.createElement("br"), document.createTextNode(detail));
+            }
+            marker.bindPopup(popup);
+            marker.on("click", () => {
+              if (weatherController) {
+                weatherController.abort();
+              }
+              weatherRequestId += 1;
+              weatherController = null;
+              if (selectedFireMarker) {
+                selectedFireMarker.setStyle(defaultFireMarkerStyle);
+              }
+              selectedFireMarker = marker;
+              selectedFire = fire;
+              marker.setStyle(selectedFireMarkerStyle);
+              map.panTo(marker.getLatLng());
+              clearWeatherReport();
+              startChain(fire);
+              requestWeather(fire);
+              weatherReport.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            fireLayer.addLayer(marker);
+          }
+
+          if (storageError) {
+            const detail = storageError instanceof Error ? storageError.message : "Unknown storage error";
+            setStatus(
+              `Loaded ${fires.length} fire detection${fires.length === 1 ? "" : "s"} from 4 satellite feeds over the last 2 days. The map is available, but these records could not be saved for Generate: ${detail}`,
+              true
+            );
+          } else {
+            setStatus(`Loaded ${fires.length} fire detection${fires.length === 1 ? "" : "s"} from 4 satellite feeds over the last 2 days.`);
+          }
+        } catch (error) {
+          const message = error instanceof TypeError
+            ? "Could not reach the local server. Run python3 server.py and open http://localhost:8000."
+            : error instanceof Error
+              ? error.message
+              : "Could not load fire detections.";
+          setStatus(message, true);
+        } finally {
+          startButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
